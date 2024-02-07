@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class API {
-  final _apiKey = "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";
+  final _apiKey = "";
   final _baseURL = "https://api.openai.com/v1/chat/completions";
 
   Map<String, String> get _headers =>
