@@ -1,20 +1,27 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:chatgpt_api_demo/src/utils/error/http_status_codes.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
-class API {
+final openAIProvider = Provider<OpenAI>((ref) => OpenAI());
+
+class OpenAI {
   final _apiKey = "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";
-  final _baseURL = "https://api.openai.com/v1/chat/completions";
+  final _baseURLChat = "https://api.openai.com/v1/chat/completions";
+  final _baseURLImage = "https://api.openai.com/v1/images/generations";
 
   Map<String, String> get _headers =>
       {"Content-Type": "application/json", "Authorization": "Bearer $_apiKey"};
 
-  Future<Map<String, dynamic>> sendPrompt({
+  Future<Map<String, dynamic>> sendPromptChat({
     required String prompt,
     required List<Map<String, dynamic>> conversationData,
   }) async {
     try {
       final response = await http.post(
-        Uri.parse(_baseURL),
+        Uri.parse(_baseURLChat),
         headers: _headers,
         body: jsonEncode(
           {
@@ -29,13 +36,13 @@ class API {
 
       switch (response.statusCode) {
         //
-        case HttpStatus.OK:
+        case Status.OK:
           final Map<String, dynamic> botResponse =
               jsonDecode(response.body)["choices"][0]["message"];
 
           return botResponse;
 
-        case HttpStatus.INVALID_AUTH:
+        case Status.UNAUTHORIZED:
           final Map<String, dynamic> botResponse = {
             "role": "assistant",
             "content": "Invalid Authentication"
@@ -43,7 +50,7 @@ class API {
 
           return botResponse;
 
-        case HttpStatus.QUOTA_EXCEEDED:
+        case Status.TOO_MANY_REQUESTS:
           final Map<String, dynamic> botResponse = {
             "role": "assistant",
             "content":
@@ -52,7 +59,7 @@ class API {
 
           return botResponse;
 
-        case HttpStatus.ENGINE_OVERLOADED:
+        case Status.SERVICE_UNAVAILABLE:
           final Map<String, dynamic> botResponse = {
             "role": "assistant",
             "content":
@@ -61,7 +68,7 @@ class API {
 
           return botResponse;
 
-        case HttpStatus.SERVER_ERROR:
+        case Status.INTERNAL_SERVER_ERROR:
           final Map<String, dynamic> botResponse = {
             "role": "assistant",
             "content": "The server had an error while processing your request"
@@ -71,16 +78,39 @@ class API {
         default:
           throw "ERROR CODE : ${response.statusCode}";
       }
+    } on SocketException catch (_) {
+      throw "NO INTERNET CONNECTION";
     } catch (e) {
       rethrow;
     }
   }
-}
 
-class HttpStatus {
-  static const int OK = 200;
-  static const int INVALID_AUTH = 401;
-  static const int QUOTA_EXCEEDED = 429;
-  static const int SERVER_ERROR = 500;
-  static const int ENGINE_OVERLOADED = 503;
+  Future<Map<String, dynamic>> sendPromptImageGeneration(
+      {required prompt}) async {
+    try {
+      final response = await http.post(
+        Uri.parse(_baseURLImage),
+        headers: _headers,
+        body: jsonEncode({
+          "model": "dall-e-2",
+          "prompt": prompt,
+          "n": 1,
+          "size": "1024x1024"
+        }),
+      );
+
+      debugPrint(response.body);
+
+      switch (response.statusCode) {
+        case Status.OK:
+          return jsonDecode(response.body);
+        default:
+          throw "ERROR CODE : ${response.statusCode}, ${response.reasonPhrase}";
+      }
+    } on SocketException catch (_) {
+      throw "NO INTERNET CONNECTION";
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

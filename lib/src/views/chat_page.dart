@@ -1,17 +1,16 @@
 import 'package:chatgpt_api_demo/src/models/message_model.dart';
 import 'package:chatgpt_api_demo/src/providers/chat_provider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class ChatPage extends StatefulWidget {
+  const ChatPage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<ChatPage> createState() => _ChatPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _ChatPageState extends State<ChatPage> {
   //
   late TextEditingController _controller;
 
@@ -27,7 +26,7 @@ class _HomePageState extends State<HomePage> {
     _controller.dispose();
   }
 
-  Future<void> _sendPrompt(BuildContext context) async {
+  Future<void> _sendPrompt(WidgetRef ref) async {
     final prompt = _controller.text.trim();
 
     if (prompt.isEmpty) {
@@ -36,9 +35,9 @@ class _HomePageState extends State<HomePage> {
 
     _controller.clear();
 
-    final chatProvider = context.read<ChatProvider>();
-
-    await chatProvider.sendMessage(UserMessage(content: prompt));
+    await ref
+        .read(chatNotifier.notifier)
+        .sendMessage(UserMessage(content: prompt));
   }
 
   @override
@@ -48,15 +47,16 @@ class _HomePageState extends State<HomePage> {
       body: Stack(
         alignment: Alignment.bottomCenter,
         children: [
-          Consumer<ChatProvider>(
-            builder: (context, provider, child) {
+          Consumer(
+            builder: (context, ref, child) {
+              final chat = ref.watch(chatNotifier);
+
               return ListView.builder(
                 shrinkWrap: false,
-                itemCount: provider.messages.length,
+                itemCount: chat.length,
                 itemBuilder: (context, index) {
-                  //
-                  final data = provider.messages[index];
-                  final isLastMessage = index == provider.messages.length - 1;
+                  final data = chat[index];
+                  final isLastMessage = index == chat.length - 1;
                   final isUser = data.role == "user";
                   return Align(
                     alignment: isUser ? Alignment.topRight : Alignment.topLeft,
@@ -89,30 +89,34 @@ class _HomePageState extends State<HomePage> {
               );
             },
           ),
-          Container(
-            height: MediaQuery.of(context).size.height * .1,
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            color: Theme.of(context).colorScheme.secondaryContainer,
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    onSubmitted: (_) => _sendPrompt(context),
-                    decoration: const InputDecoration(
-                      hintText: "Message",
-                      border: InputBorder.none,
+          Consumer(
+            builder: (context, ref, child) {
+              return Container(
+                height: MediaQuery.of(context).size.height * .1,
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                color: Theme.of(context).colorScheme.secondaryContainer,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _controller,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        onSubmitted: (_) => _sendPrompt(ref),
+                        decoration: const InputDecoration(
+                          hintText: "Message",
+                          border: InputBorder.none,
+                        ),
+                      ),
                     ),
-                  ),
+                    IconButton(
+                      onPressed: () => _sendPrompt(ref),
+                      icon: const Icon(Icons.send),
+                    ),
+                  ],
                 ),
-                IconButton(
-                  onPressed: () => _sendPrompt(context),
-                  icon: const Icon(Icons.send),
-                ),
-              ],
-            ),
-          ),
+              );
+            },
+          )
         ],
       ),
     );

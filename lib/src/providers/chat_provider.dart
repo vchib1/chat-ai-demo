@@ -1,32 +1,30 @@
 import 'package:chatgpt_api_demo/src/models/message_model.dart';
-import 'package:chatgpt_api_demo/src/services/api_service.dart';
+import 'package:chatgpt_api_demo/src/services/api/open_ai.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ChatProvider extends ChangeNotifier {
-  final API _api;
+final chatNotifier = StateNotifierProvider<ChatNotifier, List<Message>>(
+    (ref) => ChatNotifier(api: ref.watch(openAIProvider)));
 
-  ChatProvider({required API api}) : _api = api;
+class ChatNotifier extends StateNotifier<List<Message>> {
+  final OpenAI _api;
 
-  final List<Message> _messages = [];
-  List<Message> get messages => _messages;
+  ChatNotifier({required OpenAI api})
+      : _api = api,
+        super([]);
 
   final List<Map<String, dynamic>> _conversationData = [];
 
   void _addMessageToList(Message message) {
-    try {
-      _messages.add(message);
-      _conversationData.add(message.toMap());
-      notifyListeners();
-    } catch (e) {
-      rethrow;
-    }
+    state = [...state, message];
+    _conversationData.add(message.toMap());
   }
 
   Future<void> sendMessage(UserMessage userMessage) async {
     try {
       _addMessageToList(userMessage);
 
-      final botRawResponse = await _api.sendPrompt(
+      final botRawResponse = await _api.sendPromptChat(
         prompt: userMessage.content,
         conversationData: _conversationData,
       );
