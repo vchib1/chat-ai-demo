@@ -9,8 +9,10 @@ final openAIProvider = Provider<OpenAI>((ref) => OpenAI());
 
 class OpenAI {
   final _apiKey = "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";
-  final _baseURLChat = "https://api.openai.com/v1/chat/completions";
-  final _baseURLImage = "https://api.openai.com/v1/images/generations";
+
+  final _baseURL = "https://api.openai.com/v1";
+  final _endPointChat = "/chat/completions";
+  final _endPointImage = "/images/generations";
 
   Map<String, String> get _headers =>
       {"Content-Type": "application/json", "Authorization": "Bearer $_apiKey"};
@@ -20,61 +22,32 @@ class OpenAI {
     required List<Map<String, dynamic>> conversationData,
   }) async {
     try {
+      const model = "gpt-3.5-turbo";
+
+      final body = {
+        "model": model,
+        "messages": [
+          ...conversationData,
+          {"role": "assistant", "content": prompt}
+        ]
+      };
+
       final response = await http.post(
-        Uri.parse(_baseURLChat),
+        Uri.parse("$_baseURL$_endPointChat"),
         headers: _headers,
-        body: jsonEncode(
-          {
-            "model": "gpt-3.5-turbo",
-            "messages": [
-              ...conversationData,
-              {"role": "assistant", "content": prompt}
-            ]
-          },
-        ),
+        body: jsonEncode(body),
       );
 
       switch (response.statusCode) {
-        //
         case Status.OK:
-          final Map<String, dynamic> botResponse =
-              jsonDecode(response.body)["choices"][0]["message"];
-
-          return botResponse;
-
-        case Status.UNAUTHORIZED:
-          final Map<String, dynamic> botResponse = {
-            "role": "assistant",
-            "content": "Invalid Authentication"
-          };
-
-          return botResponse;
+          return jsonDecode(response.body)["choices"][0]["message"];
 
         case Status.TOO_MANY_REQUESTS:
-          final Map<String, dynamic> botResponse = {
+          return {
             "role": "assistant",
             "content":
                 "You exceeded your current quota, please check your plan and billing details"
           };
-
-          return botResponse;
-
-        case Status.SERVICE_UNAVAILABLE:
-          final Map<String, dynamic> botResponse = {
-            "role": "assistant",
-            "content":
-                "The engine is currently overloaded, please try again later"
-          };
-
-          return botResponse;
-
-        case Status.INTERNAL_SERVER_ERROR:
-          final Map<String, dynamic> botResponse = {
-            "role": "assistant",
-            "content": "The server had an error while processing your request"
-          };
-
-          return botResponse;
         default:
           throw "ERROR CODE : ${response.statusCode}";
       }
@@ -85,18 +58,23 @@ class OpenAI {
     }
   }
 
-  Future<Map<String, dynamic>> sendPromptImageGeneration(
-      {required prompt}) async {
+  Future<Map<String, dynamic>> sendPromptImageGeneration({
+    required prompt,
+  }) async {
     try {
+      const model = "dall-e-2";
+
+      final body = {
+        "model": model,
+        "prompt": prompt,
+        "n": 1,
+        "size": "1024x1024"
+      };
+
       final response = await http.post(
-        Uri.parse(_baseURLImage),
+        Uri.parse("$_baseURL$_endPointImage"),
         headers: _headers,
-        body: jsonEncode({
-          "model": "dall-e-2",
-          "prompt": prompt,
-          "n": 1,
-          "size": "1024x1024"
-        }),
+        body: jsonEncode(body),
       );
 
       debugPrint(response.body);

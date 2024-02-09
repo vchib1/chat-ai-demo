@@ -1,6 +1,7 @@
 import 'package:chatgpt_api_demo/src/utils/extensions/build_context.dart';
 import 'package:chatgpt_api_demo/src/views/chat_page.dart';
-import 'package:chatgpt_api_demo/src/views/image_page.dart';
+import 'package:chatgpt_api_demo/src/views/dall_e_ai.dart';
+import 'package:chatgpt_api_demo/src/views/imagine_ai.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -21,15 +22,21 @@ class _HomePageState extends State<HomePage> {
           children: [
             MaterialButton(
               color: context.colorScheme.secondaryContainer,
-              minWidth: MediaQuery.of(context).size.width * .50,
+              minWidth: context.width * .50,
               onPressed: () => context.push(page: const ChatPage()),
               child: const Text("ChatBot"),
             ),
             MaterialButton(
               color: context.colorScheme.secondaryContainer,
-              minWidth: MediaQuery.of(context).size.width * .50,
-              onPressed: () => context.push(page: const ImagePage()),
-              child: const Text("Image"),
+              minWidth: context.width * .50,
+              onPressed: () => context.push(page: const DallEPage()),
+              child: const Text("Dall-e Image generator"),
+            ),
+            MaterialButton(
+              color: context.colorScheme.secondaryContainer,
+              minWidth: context.width * .50,
+              onPressed: () => context.push(page: const ImagineAIPage()),
+              child: const Text("Imagine AI Image generator"),
             ),
           ],
         ),

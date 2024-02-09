@@ -1,15 +1,18 @@
-import 'package:chatgpt_api_demo/src/providers/image_provider.dart';
+import 'package:chatgpt_api_demo/src/providers/dall_e_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/imagine_notifier.dart';
+import '../providers/states/image_states.dart';
 
-class ImagePage extends StatefulWidget {
-  const ImagePage({super.key});
+class DallEPage extends StatefulWidget {
+  const DallEPage({super.key});
 
   @override
-  State<ImagePage> createState() => _ImagePageState();
+  State<DallEPage> createState() => _DallEPageState();
 }
 
-class _ImagePageState extends State<ImagePage> {
+class _DallEPageState extends State<DallEPage> {
+  //
   late TextEditingController _controller;
 
   @override
@@ -30,9 +33,8 @@ class _ImagePageState extends State<ImagePage> {
     if (prompt.isEmpty) {
       return;
     }
-
     _controller.clear();
-    await ref.read(imageState.notifier).sendPrompt(prompt);
+    await ref.read(dallEState.notifier).sendPrompt(prompt);
   }
 
   @override
@@ -44,16 +46,16 @@ class _ImagePageState extends State<ImagePage> {
         children: [
           Consumer(
             builder: (context, ref, child) {
-              final state = ref.watch(imageState);
+              final state = ref.watch(dallEState);
 
               switch (state) {
-                case ImageInitialState():
+                case DallEInitialState():
                   return const Center(child: Text("Enter a prompt"));
 
-                case ImageLoadingState():
+                case DallELoadingState():
                   return const Center(child: CircularProgressIndicator());
 
-                case ImageLoadedState():
+                case DallELoadedState():
                   return PageView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: state.data.images.length,
@@ -67,7 +69,7 @@ class _ImagePageState extends State<ImagePage> {
                     },
                   );
 
-                case ImageErrorState():
+                case DallEErrorState():
                   return Center(child: Text(state.error));
               }
             },

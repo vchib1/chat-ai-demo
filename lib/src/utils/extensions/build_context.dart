@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 extension BuildContextExtension on BuildContext {
   /// get device [size] information
-  Size get size => MediaQuery.of(this).size;
+  double get height => MediaQuery.of(this).size.height;
+  double get width => MediaQuery.of(this).size.width;
 
   /// get [screenPadding]
   EdgeInsets get screenPadding => MediaQuery.of(this).padding;
@@ -27,8 +28,8 @@ extension BuildContextExtension on BuildContext {
   /// get device themeMode or [brightness]
   Brightness get brightness => MediaQuery.of(this).platformBrightness;
 
-  /// to [push] page
-  Future<void> push({required Widget page}) async {
+  /// to push page [materialPagePush]
+  dynamic push({required Widget page}) {
     Navigator.push(this, MaterialPageRoute(builder: (context) => page));
   }
 }
