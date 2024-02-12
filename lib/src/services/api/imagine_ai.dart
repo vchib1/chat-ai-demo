@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:chatgpt_api_demo/src/utils/error/http_status_codes.dart';
-import 'package:image_picker/image_picker.dart';
 
 class ImageGenerationAPI {
   final String _apiKey = "vk-8DcOP2zMFES34frqq39abwFvBXIl21I6FQoRPpo7lFK2FDx";
@@ -39,26 +38,11 @@ class ImageGenerationAPI {
     }
   }
 
-  Future<File?> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      print(pickedFile.path);
-
-      return File(pickedFile.path);
-    } else {
-      return null; // User canceled image pick
-    }
-  }
-
-  Future<Uint8List> backgroundRemover() async {
-    File? imageFile = await _pickImage();
-
+  Future<Uint8List> backgroundRemover(File imageFile) async {
     try {
       final headers = <String, String>{"Authorization": "Bearer $_apiKey"};
 
-      final file = await http.MultipartFile.fromPath('image', imageFile!.path);
+      final file = await http.MultipartFile.fromPath('image', imageFile.path);
 
       final request = http.MultipartRequest(
         "POST",

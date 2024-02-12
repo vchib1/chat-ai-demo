@@ -1,4 +1,5 @@
 import 'package:chatgpt_api_demo/src/utils/extensions/build_context.dart';
+import 'package:chatgpt_api_demo/src/views/bg_remover_page.dart';
 import 'package:chatgpt_api_demo/src/views/chat_page.dart';
 import 'package:chatgpt_api_demo/src/views/dall_e_ai.dart';
 import 'package:chatgpt_api_demo/src/views/imagine_ai.dart';
@@ -37,6 +38,12 @@ class _HomePageState extends State<HomePage> {
               minWidth: context.width * .50,
               onPressed: () => context.push(page: const ImagineAIPage()),
               child: const Text("Imagine AI Image generator"),
+            ),
+            MaterialButton(
+              color: context.colorScheme.secondaryContainer,
+              minWidth: context.width * .50,
+              onPressed: () => context.push(page: const BGRemoverPage()),
+              child: const Text("Background Remover"),
             ),
           ],
         ),
