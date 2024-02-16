@@ -1,15 +1,15 @@
 import 'package:chatgpt_api_demo/src/models/message_model.dart';
-import 'package:chatgpt_api_demo/src/services/api/open_ai.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:chatgpt_api_demo/src/services/api/gemini_ai.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final chatNotifier = ChangeNotifierProvider(
-    (ref) => ChatNotifier(api: ref.watch(openAIProvider)));
+final geminiChatNotifier = ChangeNotifierProvider(
+    (ref) => GeminiChatNotifier(api: ref.watch(geminiAPIProvider)));
 
-class ChatNotifier extends ChangeNotifier {
-  final OpenAI _api;
+class GeminiChatNotifier extends ChangeNotifier {
+  final GeminiAPI _api;
 
-  ChatNotifier({required OpenAI api}) : _api = api;
+  GeminiChatNotifier({required GeminiAPI api}) : _api = api;
 
   final List<Message> _messages = [];
   List<Message> get messages => _messages;
@@ -34,12 +34,9 @@ class ChatNotifier extends ChangeNotifier {
 
       _showLoading(true);
 
-      final botRawResponse = await _api.sendPromptChat(
-        prompt: userMessage.content,
-        conversationData: _conversationData,
-      );
+      final response = await _api.sendPrompt(userMessage.content);
 
-      final botMessage = AssistantMessage.fromMap(botRawResponse);
+      final botMessage = AssistantMessage(content: response!);
 
       _addMessageToList(botMessage);
       _showLoading(false);

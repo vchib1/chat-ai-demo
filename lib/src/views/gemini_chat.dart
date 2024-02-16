@@ -1,16 +1,16 @@
 import 'package:chatgpt_api_demo/src/models/message_model.dart';
-import 'package:chatgpt_api_demo/src/providers/chat_provider.dart';
+import 'package:chatgpt_api_demo/src/providers/gemini_chat_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
+class GeminiChatPage extends StatefulWidget {
+  const GeminiChatPage({super.key});
 
   @override
-  State<ChatPage> createState() => _ChatPageState();
+  State<GeminiChatPage> createState() => _GeminiChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _GeminiChatPageState extends State<GeminiChatPage> {
   //
   late TextEditingController _controller;
 
@@ -36,20 +36,20 @@ class _ChatPageState extends State<ChatPage> {
     _controller.clear();
 
     await ref
-        .read(chatNotifier.notifier)
+        .read(geminiChatNotifier)
         .sendMessage(UserMessage(content: prompt));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Open AI")),
+      appBar: AppBar(title: const Text("Gemini Chat")),
       body: Stack(
         alignment: Alignment.bottomCenter,
         children: [
           Consumer(
             builder: (context, ref, child) {
-              final chat = ref.watch(chatNotifier).messages;
+              final chat = ref.watch(geminiChatNotifier).messages;
 
               return ListView.builder(
                 shrinkWrap: false,
@@ -108,7 +108,7 @@ class _ChatPageState extends State<ChatPage> {
                         ),
                       ),
                     ),
-                    ref.watch(chatNotifier).messageLoading
+                    ref.watch(geminiChatNotifier).messageLoading
                         ? const CircularProgressIndicator()
                         : IconButton(
                             onPressed: () => _sendPrompt(ref),

@@ -18,7 +18,9 @@ class DallEStateNotifier extends StateNotifier<DallEState> {
       state = DallELoadingState();
 
       final rawResponse = await _api.sendPromptImageGeneration(prompt: prompt);
+
       ImageModel data = ImageModel.fromMap(rawResponse);
+
       state = DallELoadedState(data: data);
     } catch (e) {
       state = DallEErrorState(error: e.toString());
