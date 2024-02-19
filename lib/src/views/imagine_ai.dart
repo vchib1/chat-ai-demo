@@ -44,9 +44,8 @@ class _ImagineAIPageState extends State<ImagineAIPage> {
   Future<void> _sendPrompt(WidgetRef ref) async {
     final prompt = _controller.text.trim();
 
-    if (prompt.isEmpty) {
-      return;
-    }
+    if (prompt.isEmpty) return;
+
     _controller.clear();
     await ref.read(imagineState.notifier).sendPrompt(prompt, _selectedArtStyle);
   }

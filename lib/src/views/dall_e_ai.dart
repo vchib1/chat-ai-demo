@@ -1,7 +1,6 @@
 import 'package:chatgpt_api_demo/src/providers/dall_e_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/imagine_notifier.dart';
 import '../providers/states/image_states.dart';
 
 class DallEPage extends StatefulWidget {
@@ -30,10 +29,10 @@ class _DallEPageState extends State<DallEPage> {
   Future<void> _sendPrompt(WidgetRef ref) async {
     final prompt = _controller.text.trim();
 
-    if (prompt.isEmpty) {
-      return;
-    }
+    if (prompt.isEmpty) return;
+
     _controller.clear();
+
     await ref.read(dallEState.notifier).sendPrompt(prompt);
   }
 

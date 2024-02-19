@@ -29,15 +29,11 @@ class _GeminiChatPageState extends State<GeminiChatPage> {
   Future<void> _sendPrompt(WidgetRef ref) async {
     final prompt = _controller.text.trim();
 
-    if (prompt.isEmpty) {
-      return;
-    }
+    if (prompt.isEmpty) return;
 
     _controller.clear();
 
-    await ref
-        .read(geminiChatNotifier)
-        .sendMessage(UserMessage(content: prompt));
+    await ref.read(geminiChatNotifier).sendMessage(prompt);
   }
 
   @override

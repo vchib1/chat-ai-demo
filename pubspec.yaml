@@ -43,6 +43,7 @@ dependencies:
   flutter_riverpod: ^2.4.10
   dio: ^5.4.0
   google_generative_ai: ^0.2.0
+  flutter_hooks: ^0.20.5
 
 dev_dependencies:
   flutter_test:

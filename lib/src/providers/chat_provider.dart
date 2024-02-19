@@ -28,8 +28,10 @@ class ChatNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> sendMessage(UserMessage userMessage) async {
+  Future<void> sendMessage(String prompt) async {
     try {
+      UserMessage userMessage = UserMessage(content: prompt);
+
       _addMessageToList(userMessage);
 
       _showLoading(true);

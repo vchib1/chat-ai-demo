@@ -13,9 +13,30 @@ class GeminiChatNotifier extends ChangeNotifier {
 
   final List<Message> _messages = [];
   List<Message> get messages => _messages;
+
   bool _messageLoading = false;
   bool get messageLoading => _messageLoading;
+
   final List<Map<String, dynamic>> _conversationData = [];
+
+  Future<void> sendMessage(String prompt) async {
+    try {
+      UserMessage userMessage = UserMessage(content: prompt);
+
+      _addMessageToList(userMessage);
+      _showLoading(true);
+
+      final response = await _api.sendPrompt(userMessage.content);
+
+      final botMessage = AssistantMessage(content: response);
+
+      _addMessageToList(botMessage);
+      _showLoading(false);
+    } catch (e) {
+      _showLoading(false);
+      throw e.toString();
+    }
+  }
 
   void _addMessageToList(Message message) {
     _messages.add(message);
@@ -26,23 +47,5 @@ class GeminiChatNotifier extends ChangeNotifier {
   void _showLoading(bool value) {
     _messageLoading = value;
     notifyListeners();
-  }
-
-  Future<void> sendMessage(UserMessage userMessage) async {
-    try {
-      _addMessageToList(userMessage);
-
-      _showLoading(true);
-
-      final response = await _api.sendPrompt(userMessage.content);
-
-      final botMessage = AssistantMessage(content: response!);
-
-      _addMessageToList(botMessage);
-      _showLoading(false);
-    } catch (e) {
-      _showLoading(false);
-      throw e.toString();
-    }
   }
 }

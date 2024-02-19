@@ -29,15 +29,11 @@ class _ChatPageState extends State<ChatPage> {
   Future<void> _sendPrompt(WidgetRef ref) async {
     final prompt = _controller.text.trim();
 
-    if (prompt.isEmpty) {
-      return;
-    }
+    if (prompt.isEmpty) return;
 
     _controller.clear();
 
-    await ref
-        .read(chatNotifier.notifier)
-        .sendMessage(UserMessage(content: prompt));
+    await ref.read(chatNotifier.notifier).sendMessage(prompt);
   }
 
   @override
@@ -49,14 +45,14 @@ class _ChatPageState extends State<ChatPage> {
         children: [
           Consumer(
             builder: (context, ref, child) {
-              final chat = ref.watch(chatNotifier).messages;
+              final messages = ref.watch(chatNotifier).messages;
 
               return ListView.builder(
                 shrinkWrap: false,
-                itemCount: chat.length,
+                itemCount: messages.length,
                 itemBuilder: (context, index) {
-                  final data = chat[index];
-                  final isLastMessage = index == chat.length - 1;
+                  final data = messages[index];
+                  final isLastMessage = index == messages.length - 1;
                   final isUser = data.role == "user";
                   return Align(
                     alignment: isUser ? Alignment.topRight : Alignment.topLeft,

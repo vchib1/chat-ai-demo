@@ -16,9 +16,8 @@ class BGRemoverPage extends StatelessWidget {
           if (state == null) {
             return Center(
               child: TextButton(
-                onPressed: () {
-                  ref.read(bgRemoverNotifier.notifier).pickImage();
-                },
+                onPressed: () =>
+                    ref.read(bgRemoverNotifier.notifier).pickImage(),
                 child: const Text("Pick a Image"),
               ),
             );
