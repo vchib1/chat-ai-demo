@@ -14,9 +14,9 @@ class DallELoadedState extends DallEState {
 }
 
 class DallEErrorState extends DallEState {
-  final String error;
+  final String message;
 
-  DallEErrorState({required this.error});
+  DallEErrorState({required this.message});
 }
 
 sealed class ImagineState {}
@@ -32,7 +32,7 @@ class ImagineLoadedState extends ImagineState {
 }
 
 class ImagineErrorState extends ImagineState {
-  final String error;
+  final String message;
 
-  ImagineErrorState({required this.error});
+  ImagineErrorState({required this.message});
 }

@@ -22,7 +22,7 @@ class ImagineStateNotifier extends StateNotifier<ImagineState> {
 
       state = ImagineLoadedState(bytes: response);
     } catch (e) {
-      state = ImagineErrorState(error: e.toString());
+      state = ImagineErrorState(message: e.toString());
     }
   }
 }

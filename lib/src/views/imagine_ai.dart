@@ -88,7 +88,7 @@ class _ImagineAIPageState extends State<ImagineAIPage> {
                     );
 
                   case ImagineErrorState():
-                    return Center(child: Text(state.error));
+                    return Center(child: Text(state.message));
                 }
               },
             ),

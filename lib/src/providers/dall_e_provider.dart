@@ -23,7 +23,7 @@ class DallEStateNotifier extends StateNotifier<DallEState> {
 
       state = DallELoadedState(data: data);
     } catch (e) {
-      state = DallEErrorState(error: e.toString());
+      state = DallEErrorState(message: e.toString());
     }
   }
 }

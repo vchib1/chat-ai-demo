@@ -13,27 +13,33 @@ class ChatNotifier extends ChangeNotifier {
 
   final List<Message> _messages = [];
   List<Message> get messages => _messages;
-  bool _messageLoading = false;
-  bool get messageLoading => _messageLoading;
+
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
   final List<Map<String, dynamic>> _conversationData = [];
 
   void _addMessageToList(Message message) {
     _messages.add(message);
+
+    if (_conversationData.length >= 6) {
+      _conversationData.removeAt(0);
+    }
+
     _conversationData.add(message.toMap());
     notifyListeners();
   }
 
   void _showLoading(bool value) {
-    _messageLoading = value;
+    _isLoading = value;
     notifyListeners();
   }
 
-  Future<void> sendMessage(String prompt) async {
+  Future<void> sendMessage(String message) async {
     try {
-      UserMessage userMessage = UserMessage(content: prompt);
+      UserMessage userMessage = UserMessage(content: message);
 
       _addMessageToList(userMessage);
-
       _showLoading(true);
 
       final botRawResponse = await _api.sendPromptChat(
@@ -41,9 +47,7 @@ class ChatNotifier extends ChangeNotifier {
         conversationData: _conversationData,
       );
 
-      final botMessage = AssistantMessage.fromMap(botRawResponse);
-
-      _addMessageToList(botMessage);
+      _addMessageToList(AssistantMessage.fromMap(botRawResponse));
       _showLoading(false);
     } catch (e) {
       _showLoading(false);

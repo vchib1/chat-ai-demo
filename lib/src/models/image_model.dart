@@ -12,12 +12,12 @@ class ImageModel {
   }
 
   factory ImageModel.fromMap(Map<String, dynamic> map) {
-    return ImageModel(
-      created:
-          DateTime.fromMillisecondsSinceEpoch((map['created'] as int) * 1000),
-      images: (map['data'] as List<dynamic>)
-          .map((data) => data['url'] as String)
-          .toList(),
-    );
+    DateTime created =
+        DateTime.fromMillisecondsSinceEpoch((map['created'] as int) * 1000);
+
+    List<String> images =
+        (map['data'] as List).map((e) => e['url'] as String).toList();
+
+    return ImageModel(created: created, images: images);
   }
 }

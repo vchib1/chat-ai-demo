@@ -69,7 +69,7 @@ class _DallEPageState extends State<DallEPage> {
                   );
 
                 case DallEErrorState():
-                  return Center(child: Text(state.error));
+                  return Center(child: Text(state.message));
               }
             },
           ),

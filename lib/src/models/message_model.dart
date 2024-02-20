@@ -1,37 +1,31 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/cupertino.dart';
 
+@immutable
 class Message extends Equatable {
   final String role;
   final String content;
 
   const Message({required this.role, required this.content});
 
-  Map<String, dynamic> toMap() {
-    return {'role': role, 'content': content};
-  }
+  Map<String, dynamic> toMap() => {'role': role, 'content': content};
 
   @override
   List<Object?> get props => [role, content];
 }
 
 class UserMessage extends Message {
-  const UserMessage({super.role = "user", required super.content});
+  const UserMessage({required super.content}) : super(role: "user");
 
   factory UserMessage.fromMap(Map<String, dynamic> map) {
-    return UserMessage(
-      role: map['role'],
-      content: map['content'],
-    );
+    return UserMessage(content: map['content']);
   }
 }
 
 class AssistantMessage extends Message {
-  const AssistantMessage({super.role = "assistant", required super.content});
+  const AssistantMessage({required super.content}) : super(role: "assistant");
 
   factory AssistantMessage.fromMap(Map<String, dynamic> map) {
-    return AssistantMessage(
-      role: map['role'],
-      content: map['content'],
-    );
+    return AssistantMessage(content: map['content']);
   }
 }

@@ -1,7 +1,7 @@
-import 'package:chatgpt_api_demo/src/models/message_model.dart';
 import 'package:chatgpt_api_demo/src/providers/chat_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../utils/functions/scroll_to_bottom.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -13,17 +13,20 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   //
   late TextEditingController _controller;
+  late ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
+    _scrollController = ScrollController();
   }
 
   @override
   void dispose() {
     super.dispose();
     _controller.dispose();
+    _scrollController.dispose();
   }
 
   Future<void> _sendPrompt(WidgetRef ref) async {
@@ -47,9 +50,13 @@ class _ChatPageState extends State<ChatPage> {
             builder: (context, ref, child) {
               final messages = ref.watch(chatNotifier).messages;
 
+              scrollToBottom(_scrollController);
+
               return ListView.builder(
+                controller: _scrollController,
                 shrinkWrap: false,
                 itemCount: messages.length,
+                physics: const ClampingScrollPhysics(),
                 itemBuilder: (context, index) {
                   final data = messages[index];
                   final isLastMessage = index == messages.length - 1;
@@ -104,7 +111,7 @@ class _ChatPageState extends State<ChatPage> {
                         ),
                       ),
                     ),
-                    ref.watch(chatNotifier).messageLoading
+                    ref.watch(chatNotifier).isLoading
                         ? const CircularProgressIndicator()
                         : IconButton(
                             onPressed: () => _sendPrompt(ref),
@@ -114,7 +121,7 @@ class _ChatPageState extends State<ChatPage> {
                 ),
               );
             },
-          )
+          ),
         ],
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:chatgpt_api_demo/src/models/message_model.dart';
 import 'package:chatgpt_api_demo/src/providers/gemini_chat_provider.dart';
+import 'package:chatgpt_api_demo/src/utils/functions/scroll_to_bottom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,17 +14,20 @@ class GeminiChatPage extends StatefulWidget {
 class _GeminiChatPageState extends State<GeminiChatPage> {
   //
   late TextEditingController _controller;
+  late ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
+    _scrollController = ScrollController();
   }
 
   @override
   void dispose() {
     super.dispose();
     _controller.dispose();
+    _scrollController.dispose();
   }
 
   Future<void> _sendPrompt(WidgetRef ref) async {
@@ -47,8 +51,12 @@ class _GeminiChatPageState extends State<GeminiChatPage> {
             builder: (context, ref, child) {
               final chat = ref.watch(geminiChatNotifier).messages;
 
+              scrollToBottom(_scrollController);
+
               return ListView.builder(
+                controller: _scrollController,
                 shrinkWrap: false,
+                physics: const ClampingScrollPhysics(),
                 itemCount: chat.length,
                 itemBuilder: (context, index) {
                   final data = chat[index];
@@ -104,7 +112,7 @@ class _GeminiChatPageState extends State<GeminiChatPage> {
                         ),
                       ),
                     ),
-                    ref.watch(geminiChatNotifier).messageLoading
+                    ref.watch(geminiChatNotifier).isLoading
                         ? const CircularProgressIndicator()
                         : IconButton(
                             onPressed: () => _sendPrompt(ref),
