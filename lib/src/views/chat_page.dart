@@ -1,124 +1,93 @@
 import 'package:chatgpt_api_demo/src/providers/chat_provider.dart';
+import 'package:chatgpt_api_demo/src/views/widgets/chat_text_field.dart';
+import 'package:chatgpt_api_demo/src/views/widgets/chat_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/functions/scroll_to_bottom.dart';
 
-class ChatPage extends StatefulWidget {
+class ChatPage extends HookWidget {
   const ChatPage({super.key});
 
-  @override
-  State<ChatPage> createState() => _ChatPageState();
-}
-
-class _ChatPageState extends State<ChatPage> {
-  //
-  late TextEditingController _controller;
-  late ScrollController _scrollController;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-    _scrollController = ScrollController();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _controller.dispose();
-    _scrollController.dispose();
-  }
-
-  Future<void> _sendPrompt(WidgetRef ref) async {
-    final prompt = _controller.text.trim();
+  Future<void> _sendPrompt(
+      WidgetRef ref, TextEditingController controller) async {
+    final prompt = controller.text.trim();
 
     if (prompt.isEmpty) return;
 
-    _controller.clear();
+    controller.clear();
 
     await ref.read(chatNotifier.notifier).sendMessage(prompt);
   }
 
   @override
   Widget build(BuildContext context) {
+    final controller = useTextEditingController();
+    final scrollController = useScrollController();
+
+    final selectMode = useState(false);
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Open AI")),
-      body: Stack(
-        alignment: Alignment.bottomCenter,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: Consumer(
+          builder: (context, ref, child) {
+            return AppBar(
+              actions: selectMode.value
+                  ? [
+                      Text(
+                          "${ref.watch(chatNotifier).selectedMessages.length} selected"),
+                      IconButton(
+                        onPressed: () {
+                          ref.read(chatNotifier).deleteSelectedMessages();
+                          selectMode.value = false;
+                        },
+                        icon: const Icon(Icons.delete),
+                      ),
+                    ]
+                  : [],
+            );
+          },
+        ),
+      ),
+      body: Column(
         children: [
           Consumer(
             builder: (context, ref, child) {
               final messages = ref.watch(chatNotifier).messages;
+              final selectedMessages = ref.watch(chatNotifier).selectedMessages;
 
-              scrollToBottom(_scrollController);
+              if (!selectMode.value) {
+                scrollToBottom(scrollController);
+              }
 
-              return ListView.builder(
-                controller: _scrollController,
-                shrinkWrap: false,
-                itemCount: messages.length,
-                physics: const ClampingScrollPhysics(),
-                itemBuilder: (context, index) {
-                  final data = messages[index];
-                  final isLastMessage = index == messages.length - 1;
-                  final isUser = data.role == "user";
-                  return Align(
-                    alignment: isUser ? Alignment.topRight : Alignment.topLeft,
-                    child: Container(
-                      padding: const EdgeInsets.all(12.0),
-                      margin: isLastMessage
-                          ? EdgeInsets.fromLTRB(
-                              8,
-                              8,
-                              8,
-                              MediaQuery.of(context).size.height * .1 + 4.0,
-                            )
-                          : const EdgeInsets.all(8.0),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(isUser ? 20 : 0),
-                          topRight: Radius.circular(isUser ? 0 : 20),
-                          bottomLeft: const Radius.circular(20),
-                          bottomRight: const Radius.circular(20),
-                        ),
-                      ),
-                      child: Text(
-                        data.content,
-                        style: Theme.of(context).primaryTextTheme.bodyMedium,
-                      ),
-                    ),
-                  );
+              scrollToBottom(scrollController);
+
+              return ChatViewWidget(
+                scrollController: scrollController,
+                messages: messages,
+                selectedMessages: selectedMessages,
+                selectMode: selectMode.value,
+                onTap: (message) => ref
+                    .read(chatNotifier)
+                    .selectMessage(message, selectMode.value),
+                onLongPress: () {
+                  ref.read(chatNotifier).clearSelectedMessages();
+
+                  selectMode.value = !selectMode.value;
                 },
               );
             },
           ),
           Consumer(
             builder: (context, ref, child) {
-              return Container(
-                height: MediaQuery.of(context).size.height * .1,
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                color: Theme.of(context).colorScheme.secondaryContainer,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _controller,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                        onSubmitted: (_) => _sendPrompt(ref),
-                        decoration: const InputDecoration(
-                          hintText: "Message",
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                    ref.watch(chatNotifier).isLoading
-                        ? const CircularProgressIndicator()
-                        : IconButton(
-                            onPressed: () => _sendPrompt(ref),
-                            icon: const Icon(Icons.send),
-                          ),
-                  ],
-                ),
+              final isLoading = ref.watch(chatNotifier).isLoading;
+
+              return ChatTextField(
+                controller: controller,
+                isLoading: isLoading,
+                onSubmitted: (_) => _sendPrompt(ref, controller),
+                onPressed: () => _sendPrompt(ref, controller),
               );
             },
           ),

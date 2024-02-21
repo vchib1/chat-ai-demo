@@ -1,5 +1,6 @@
 import 'package:chatgpt_api_demo/src/models/message_model.dart';
 import 'package:chatgpt_api_demo/src/services/api/gemini_ai.dart';
+import 'package:chatgpt_api_demo/src/utils/snackbar.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,6 +14,9 @@ class GeminiChatNotifier extends ChangeNotifier {
 
   final List<Message> _messages = [];
   List<Message> get messages => _messages;
+
+  final List<Message> _selectedMessages = [];
+  List<Message> get selectedMessages => _selectedMessages;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -33,6 +37,32 @@ class GeminiChatNotifier extends ChangeNotifier {
     } catch (e) {
       _showLoading(false);
       throw e.toString();
+    }
+  }
+
+  void clearSelectedMessages() {
+    _selectedMessages.clear();
+  }
+
+  void deleteSelectedMessages() {
+    try {
+      _messages.removeWhere((message) => _selectedMessages.contains(message));
+      _selectedMessages.clear();
+      notifyListeners();
+    } catch (_) {}
+  }
+
+  void selectMessage(Message message, bool selectMode) {
+    if (selectMode) {
+      if (_selectedMessages.contains(message)) {
+        _selectedMessages.remove(message);
+
+        notifyListeners();
+        return;
+      }
+
+      _selectedMessages.add(message);
+      notifyListeners();
     }
   }
 

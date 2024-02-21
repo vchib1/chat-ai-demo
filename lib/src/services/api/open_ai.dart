@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:chatgpt_api_demo/src/utils/constants/message_const.dart';
 import 'package:chatgpt_api_demo/src/utils/error/http_status_codes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,8 +12,6 @@ class OpenAI {
   final _apiKey = "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";
 
   final _baseURL = "https://api.openai.com/v1";
-  final _endPointChat = "/chat/completions";
-  final _endPointImage = "/images/generations";
 
   Map<String, String> get _headers =>
       {"Content-Type": "application/json", "Authorization": "Bearer $_apiKey"};
@@ -23,19 +22,20 @@ class OpenAI {
   }) async {
     try {
       const model = "gpt-3.5-turbo";
+      const endPointChat = "/chat/completions";
 
-      final body = {
+      final body = jsonEncode({
         "model": model,
         "messages": [
           ...conversationData,
           {"role": "assistant", "content": prompt}
         ]
-      };
+      });
 
       final response = await http.post(
-        Uri.parse("$_baseURL$_endPointChat"),
+        Uri.parse("$_baseURL$endPointChat"),
         headers: _headers,
-        body: jsonEncode(body),
+        body: body,
       );
 
       switch (response.statusCode) {
@@ -44,8 +44,8 @@ class OpenAI {
 
         case Status.TOO_MANY_REQUESTS:
           return {
-            "role": "assistant",
-            "content":
+            MessageConst.role: "assistant",
+            MessageConst.content:
                 "You exceeded your current quota, please check your plan and billing details"
           };
         default:
@@ -63,18 +63,19 @@ class OpenAI {
   }) async {
     try {
       const model = "dall-e-2";
+      const endPointImage = "/images/generations";
 
-      final body = {
+      final body = jsonEncode({
         "model": model,
         "prompt": prompt,
         "n": 1,
-        "size": "1024x1024"
-      };
+        "size": "1024x1024",
+      });
 
       final response = await http.post(
-        Uri.parse("$_baseURL$_endPointImage"),
+        Uri.parse("$_baseURL$endPointImage"),
         headers: _headers,
-        body: jsonEncode(body),
+        body: body,
       );
 
       debugPrint(response.body);
