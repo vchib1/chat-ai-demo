@@ -8,7 +8,7 @@ class ChatViewWidget extends StatelessWidget {
   final List<Message> selectedMessages;
   final bool selectMode;
   final void Function(Message)? onTap;
-  final void Function()? onLongPress;
+  final void Function(Message)? onLongPress;
 
   const ChatViewWidget({
     super.key,
@@ -34,7 +34,7 @@ class ChatViewWidget extends StatelessWidget {
           final isUser = message.role == "user";
           return GestureDetector(
             onTap: () => onTap!(message),
-            onLongPress: onLongPress,
+            onLongPress: () => onLongPress!(message),
             child: Stack(
               children: [
                 Align(
@@ -43,12 +43,14 @@ class ChatViewWidget extends StatelessWidget {
                     padding: const EdgeInsets.all(12.0),
                     margin: const EdgeInsets.all(8.0),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      boxShadow: const [
+                      color: isUser
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.secondary,
+                      boxShadow: [
                         BoxShadow(
-                          color: Colors.grey,
-                          offset: Offset(-2, 2),
-                          blurRadius: 1,
+                          color: Theme.of(context).colorScheme.shadow,
+                          offset: const Offset(0, 0),
+                          blurRadius: 5,
                         ),
                       ],
                       borderRadius: BorderRadius.only(

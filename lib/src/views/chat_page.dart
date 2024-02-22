@@ -1,3 +1,4 @@
+import 'package:chatgpt_api_demo/src/models/message_model.dart';
 import 'package:chatgpt_api_demo/src/providers/chat_provider.dart';
 import 'package:chatgpt_api_demo/src/views/widgets/chat_text_field.dart';
 import 'package:chatgpt_api_demo/src/views/widgets/chat_view.dart';
@@ -18,6 +19,29 @@ class ChatPage extends HookWidget {
     controller.clear();
 
     await ref.read(chatNotifier.notifier).sendMessage(prompt);
+  }
+
+  void _onTap(WidgetRef ref, ValueNotifier<bool> selectMode, Message message) {
+    final provider = ref.read(chatNotifier);
+
+    provider.selectMessage(message, selectMode.value);
+
+    if (provider.selectedMessages.isEmpty) {
+      selectMode.value = false;
+    }
+  }
+
+  void _onLongPress(
+      WidgetRef ref, ValueNotifier<bool> selectMode, Message message) {
+    final provider = ref.read(chatNotifier);
+
+    provider.clearSelectedMessages();
+
+    selectMode.value = !selectMode.value;
+
+    if (provider.selectedMessages.isEmpty && selectMode.value) {
+      provider.selectMessage(message, selectMode.value);
+    }
   }
 
   @override
@@ -68,14 +92,9 @@ class ChatPage extends HookWidget {
                 messages: messages,
                 selectedMessages: selectedMessages,
                 selectMode: selectMode.value,
-                onTap: (message) => ref
-                    .read(chatNotifier)
-                    .selectMessage(message, selectMode.value),
-                onLongPress: () {
-                  ref.read(chatNotifier).clearSelectedMessages();
-
-                  selectMode.value = !selectMode.value;
-                },
+                onTap: (message) => _onTap(ref, selectMode, message),
+                onLongPress: (message) =>
+                    _onLongPress(ref, selectMode, message),
               );
             },
           ),

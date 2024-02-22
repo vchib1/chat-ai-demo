@@ -5,6 +5,7 @@ import 'package:chatgpt_api_demo/src/views/widgets/chat_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/message_model.dart';
 
 class GeminiChatPage extends HookWidget {
   const GeminiChatPage({super.key});
@@ -18,6 +19,29 @@ class GeminiChatPage extends HookWidget {
     controller.clear();
 
     await ref.read(geminiChatNotifier).sendMessage(prompt);
+  }
+
+  void _onTap(WidgetRef ref, ValueNotifier<bool> selectMode, Message message) {
+    final provider = ref.read(geminiChatNotifier);
+
+    provider.selectMessage(message, selectMode.value);
+
+    if (provider.selectedMessages.isEmpty) {
+      selectMode.value = false;
+    }
+  }
+
+  void _onLongPress(
+      WidgetRef ref, ValueNotifier<bool> selectMode, Message message) {
+    final provider = ref.read(geminiChatNotifier);
+
+    provider.clearSelectedMessages();
+
+    selectMode.value = !selectMode.value;
+
+    if (provider.selectedMessages.isEmpty && selectMode.value) {
+      provider.selectMessage(message, selectMode.value);
+    }
   }
 
   @override
@@ -67,14 +91,9 @@ class GeminiChatPage extends HookWidget {
                 messages: messages,
                 selectedMessages: selectedMessages,
                 selectMode: selectMode.value,
-                onTap: (message) => ref
-                    .read(geminiChatNotifier)
-                    .selectMessage(message, selectMode.value),
-                onLongPress: () {
-                  ref.read(geminiChatNotifier).clearSelectedMessages();
-
-                  selectMode.value = !selectMode.value;
-                },
+                onTap: (message) => _onTap(ref, selectMode, message),
+                onLongPress: (message) =>
+                    _onLongPress(ref, selectMode, message),
               );
             },
           ),

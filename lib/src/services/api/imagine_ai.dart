@@ -7,8 +7,10 @@ class ImageGenerationAPI {
   final String _apiKey = "vk-8DcOP2zMFES34frqq39abwFvBXIl21I6FQoRPpo7lFK2FDx";
   final String _baseURL = "https://api.vyro.ai/v1/imagine/api/generations";
 
-  Future<Uint8List> sendImageProcessingRequest(
-      {required String prompt, required int style}) async {
+  Future<Uint8List> sendImageProcessingRequest({
+    required String prompt,
+    required int style,
+  }) async {
     try {
       final headers = <String, String>{"Authorization": "Bearer $_apiKey"};
 

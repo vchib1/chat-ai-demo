@@ -1,6 +1,5 @@
 import 'package:chatgpt_api_demo/src/models/message_model.dart';
 import 'package:chatgpt_api_demo/src/services/api/gemini_ai.dart';
-import 'package:chatgpt_api_demo/src/utils/snackbar.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -40,9 +39,7 @@ class GeminiChatNotifier extends ChangeNotifier {
     }
   }
 
-  void clearSelectedMessages() {
-    _selectedMessages.clear();
-  }
+  void clearSelectedMessages() => _selectedMessages.clear();
 
   void deleteSelectedMessages() {
     try {
@@ -53,17 +50,15 @@ class GeminiChatNotifier extends ChangeNotifier {
   }
 
   void selectMessage(Message message, bool selectMode) {
-    if (selectMode) {
-      if (_selectedMessages.contains(message)) {
-        _selectedMessages.remove(message);
+    if (selectMode == false) return;
 
-        notifyListeners();
-        return;
-      }
-
+    if (_selectedMessages.contains(message)) {
+      _selectedMessages.remove(message);
+    } else {
       _selectedMessages.add(message);
-      notifyListeners();
     }
+
+    notifyListeners();
   }
 
   void _addMessageToList(Message message) {

@@ -58,9 +58,7 @@ class ChatNotifier extends ChangeNotifier {
     }
   }
 
-  void clearSelectedMessages() {
-    _selectedMessages.clear();
-  }
+  void clearSelectedMessages() => _selectedMessages.clear();
 
   void deleteSelectedMessages() {
     try {
@@ -71,16 +69,14 @@ class ChatNotifier extends ChangeNotifier {
   }
 
   void selectMessage(Message message, bool selectMode) {
-    if (selectMode) {
-      if (_selectedMessages.contains(message)) {
-        _selectedMessages.remove(message);
+    if (!selectMode) return;
 
-        notifyListeners();
-        return;
-      }
-
+    if (_selectedMessages.contains(message)) {
+      _selectedMessages.remove(message);
+    } else {
       _selectedMessages.add(message);
-      notifyListeners();
     }
+
+    notifyListeners();
   }
 }
