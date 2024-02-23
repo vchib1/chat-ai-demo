@@ -39,10 +39,10 @@ class OpenAI {
       );
 
       switch (response.statusCode) {
-        case Status.OK:
+        case Status.ok:
           return jsonDecode(response.body)["choices"][0]["message"];
 
-        case Status.TOO_MANY_REQUESTS:
+        case Status.tooManyRequests:
           return {
             MessageConst.role: "assistant",
             MessageConst.content:
@@ -81,7 +81,7 @@ class OpenAI {
       debugPrint(response.body);
 
       switch (response.statusCode) {
-        case Status.OK:
+        case Status.ok:
           return jsonDecode(response.body);
         default:
           throw "ERROR CODE : ${response.statusCode}, ${response.reasonPhrase}";

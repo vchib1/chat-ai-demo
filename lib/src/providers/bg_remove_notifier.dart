@@ -4,6 +4,8 @@ import 'package:chatgpt_api_demo/src/services/api/imagine_ai.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../utils/functions/file_to_uint8.dart';
+
 final bgRemoverNotifier = StateNotifierProvider<BGRemoverNotifier, Uint8List?>(
     (ref) => BGRemoverNotifier(api: ImageGenerationAPI()));
 
@@ -14,30 +16,15 @@ class BGRemoverNotifier extends StateNotifier<Uint8List?> {
       : _api = api,
         super(null);
 
-  Future<Uint8List> fileToUInt8List(String filePath) async {
-    File file = File(filePath);
-    RandomAccessFile randomAccessFile = await file.open();
-
-    int length = await file.length();
-
-    Uint8List res = await randomAccessFile.read(length);
-
-    await randomAccessFile.close();
-
-    return res;
-  }
-
   Future<void> pickImage() async {
     try {
       final pickedFile =
           await ImagePicker().pickImage(source: ImageSource.gallery);
 
       if (pickedFile != null) {
-        File file = File(pickedFile.path);
+        state = await xFileToUInt8List(pickedFile);
 
-        state = await fileToUInt8List(file.path);
-
-        state = await _api.backgroundRemover(file);
+        state = await _api.backgroundRemover(File(pickedFile.path));
       } else {
         throw "No image picked";
       }

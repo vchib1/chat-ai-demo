@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:chatgpt_api_demo/src/utils/extensions/build_context.dart';
 import 'package:flutter/material.dart';
 import '../../models/message_model.dart';
@@ -66,27 +68,27 @@ class ChatViewWidget extends StatelessWidget {
                     ),
                   ),
                 ),
-                selectMode
-                    ? Opacity(
-                        opacity:
-                            selectedMessages.contains(message) ? 0.25 : 0.0,
-                        child: Container(
-                          width: context.width,
-                          padding: const EdgeInsets.all(12.0),
-                          margin: const EdgeInsets.all(8.0),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          child: Text(
-                            message.content,
-                            style: Theme.of(context)
-                                .primaryTextTheme
-                                .bodyMedium!
-                                .copyWith(color: Colors.transparent),
-                          ),
-                        ),
-                      )
-                    : const SizedBox.shrink(),
+                if (selectMode)
+                  Opacity(
+                    opacity: selectedMessages.contains(message) ? 0.25 : 0.0,
+                    child: Container(
+                      width: context.width,
+                      padding: const EdgeInsets.all(12.0),
+                      margin: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      child: Text(
+                        message.content,
+                        style: Theme.of(context)
+                            .primaryTextTheme
+                            .bodyMedium!
+                            .copyWith(color: Colors.transparent),
+                      ),
+                    ),
+                  )
+                else
+                  const SizedBox.shrink(),
               ],
             ),
           );

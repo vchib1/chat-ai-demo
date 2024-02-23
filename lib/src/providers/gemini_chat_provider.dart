@@ -1,7 +1,11 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:chatgpt_api_demo/src/models/message_model.dart';
 import 'package:chatgpt_api_demo/src/services/api/gemini_ai.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 
 final geminiChatNotifier = ChangeNotifierProvider(
     (ref) => GeminiChatNotifier(api: ref.watch(geminiAPIProvider)));
@@ -20,16 +24,29 @@ class GeminiChatNotifier extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  final List<Map<String, dynamic>> _conversationData = [];
-
-  Future<void> sendMessage(String prompt) async {
+  Future<void> sendTextMessage(String prompt) async {
     try {
       UserMessage userMessage = UserMessage(content: prompt);
 
       _addMessageToList(userMessage);
       _showLoading(true);
 
-      final botResponse = await _api.sendPrompt(userMessage.content);
+      final botResponse = await _api.sendTextPrompt([Content.text(prompt)]);
+
+      _addMessageToList(AssistantMessage(content: botResponse));
+      _showLoading(false);
+    } catch (e) {
+      _showLoading(false);
+      throw e.toString();
+    }
+  }
+
+  Future<void> sendImageMessage(String prompt, List<Uint8List> images) async {
+    try {
+      _addMessageToList(UserMessage(content: prompt));
+      _showLoading(true);
+
+      final botResponse = await _api.sendImagePrompt(prompt, images);
 
       _addMessageToList(AssistantMessage(content: botResponse));
       _showLoading(false);
@@ -64,11 +81,9 @@ class GeminiChatNotifier extends ChangeNotifier {
   void _addMessageToList(Message message) {
     _messages.add(message);
 
-    if (_conversationData.length >= 6) {
-      _conversationData.removeAt(0);
+    for (Message msg in _messages) {
+      print(msg);
     }
-
-    _conversationData.add(message.toMap());
 
     notifyListeners();
   }

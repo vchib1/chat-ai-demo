@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:badges/badges.dart' as badge;
 
 class ChatTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -6,13 +7,19 @@ class ChatTextField extends StatelessWidget {
   final String hintText;
   final void Function(String)? onSubmitted;
   final void Function()? onPressed;
+  final bool allowImagePick;
+  final void Function()? onImagePressed;
+  final int selectedImageCount;
 
   const ChatTextField({
     super.key,
     required this.controller,
     required this.isLoading,
     this.hintText = "Message",
+    this.allowImagePick = false,
+    this.selectedImageCount = 0,
     this.onSubmitted,
+    this.onImagePressed,
     this.onPressed,
   });
 
@@ -24,6 +31,7 @@ class ChatTextField extends StatelessWidget {
       color: Theme.of(context).colorScheme.secondaryContainer,
       child: Row(
         children: [
+          /// TextField
           Expanded(
             child: TextField(
               controller: controller,
@@ -35,9 +43,31 @@ class ChatTextField extends StatelessWidget {
               ),
             ),
           ),
-          isLoading
-              ? const CircularProgressIndicator()
-              : IconButton(onPressed: onPressed, icon: const Icon(Icons.send)),
+
+          /// Image Icon Button
+          if (allowImagePick)
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: GestureDetector(
+                onTap: onImagePressed,
+                child: badge.Badge(
+                  showBadge: selectedImageCount > 0,
+                  badgeContent: Text("$selectedImageCount"),
+                  child: const Icon(Icons.image),
+                ),
+              ),
+            )
+          else
+            const SizedBox.shrink(),
+
+          /// Send Button
+          if (isLoading)
+            const Padding(
+              padding: EdgeInsets.only(left: 8.0),
+              child: CircularProgressIndicator(),
+            )
+          else
+            IconButton(onPressed: onPressed, icon: const Icon(Icons.send)),
         ],
       ),
     );

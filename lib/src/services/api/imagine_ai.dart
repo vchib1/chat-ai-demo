@@ -29,7 +29,7 @@ class ImageGenerationAPI {
 
       final res = await request.send();
 
-      if (res.statusCode == Status.OK) {
+      if (res.statusCode == Status.ok) {
         final responseData = await res.stream.toBytes();
         return responseData;
       } else {
@@ -55,7 +55,7 @@ class ImageGenerationAPI {
 
       final res = await request.send();
 
-      if (res.statusCode == Status.OK) {
+      if (res.statusCode == Status.ok) {
         final responseData = await res.stream.toBytes();
         return responseData;
       } else {
