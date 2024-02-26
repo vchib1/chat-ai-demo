@@ -1,6 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:chatgpt_api_demo/src/utils/extensions/build_context.dart';
+import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:flutter/material.dart';
 import '../../models/message_model.dart';
 

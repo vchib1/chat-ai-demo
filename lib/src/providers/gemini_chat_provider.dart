@@ -1,11 +1,10 @@
-import 'dart:io';
 import 'dart:typed_data';
-
-import 'package:chatgpt_api_demo/src/models/message_model.dart';
 import 'package:chatgpt_api_demo/src/services/api/gemini_ai.dart';
+import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:image_picker/image_picker.dart';
+import '../utils/functions/file_to_uint8.dart';
 
 final geminiChatNotifier = ChangeNotifierProvider(
     (ref) => GeminiChatNotifier(api: ref.watch(geminiAPIProvider)));
@@ -15,76 +14,72 @@ class GeminiChatNotifier extends ChangeNotifier {
 
   GeminiChatNotifier({required GeminiAPI api}) : _api = api;
 
-  final List<Message> _messages = [];
-  List<Message> get messages => _messages;
+  final ChatUser user = ChatUser(id: "idUser", firstName: "User");
+  final ChatUser bot = ChatUser(
+      id: "idBot", firstName: "Gemini", customProperties: {'test': 'test'});
 
-  final List<Message> _selectedMessages = [];
-  List<Message> get selectedMessages => _selectedMessages;
+  List<ChatMessage> _messages = [];
+  List<ChatMessage> get messages => _messages;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
   Future<void> sendTextMessage(String prompt) async {
     try {
-      UserMessage userMessage = UserMessage(content: prompt);
+      ChatMessage userMessage =
+          ChatMessage(user: user, createdAt: DateTime.now(), text: prompt);
 
       _addMessageToList(userMessage);
+
       _showLoading(true);
 
-      final botResponse = await _api.sendTextPrompt([Content.text(prompt)]);
+      final botResponse = await _api.sendTextPrompt(prompt);
 
-      _addMessageToList(AssistantMessage(content: botResponse));
-      _showLoading(false);
+      _addMessageToList(
+        ChatMessage(user: bot, createdAt: DateTime.now(), text: botResponse),
+      );
     } catch (e) {
-      _showLoading(false);
       throw e.toString();
+    } finally {
+      _showLoading(false);
     }
   }
 
-  Future<void> sendImageMessage(String prompt, List<Uint8List> images) async {
+  Future<void> sendImageMessage(
+      String prompt, List<XFile> selectedImages) async {
     try {
-      _addMessageToList(UserMessage(content: prompt));
+      _addMessageToList(
+        ChatMessage(
+          user: user,
+          createdAt: DateTime.now(),
+          text: prompt,
+          medias: selectedImages
+              .map((image) => ChatMedia(
+                  url: image.path, fileName: image.name, type: MediaType.image))
+              .toList(),
+        ),
+      );
       _showLoading(true);
+
+      List<Uint8List> images = [];
+
+      for (final img in selectedImages) {
+        images.add(await xFileToUInt8List(img));
+      }
 
       final botResponse = await _api.sendImagePrompt(prompt, images);
 
-      _addMessageToList(AssistantMessage(content: botResponse));
-      _showLoading(false);
+      _addMessageToList(
+          ChatMessage(user: bot, createdAt: DateTime.now(), text: botResponse));
     } catch (e) {
-      _showLoading(false);
       throw e.toString();
+    } finally {
+      _showLoading(false);
     }
   }
 
-  void clearSelectedMessages() => _selectedMessages.clear();
-
-  void deleteSelectedMessages() {
-    try {
-      _messages.removeWhere((message) => _selectedMessages.contains(message));
-      _selectedMessages.clear();
-      notifyListeners();
-    } catch (_) {}
-  }
-
-  void selectMessage(Message message, bool selectMode) {
-    if (selectMode == false) return;
-
-    if (_selectedMessages.contains(message)) {
-      _selectedMessages.remove(message);
-    } else {
-      _selectedMessages.add(message);
-    }
-
-    notifyListeners();
-  }
-
-  void _addMessageToList(Message message) {
-    _messages.add(message);
-
-    for (Message msg in _messages) {
-      print(msg);
-    }
-
+  void _addMessageToList(ChatMessage message) {
+    _messages = [message, ..._messages];
     notifyListeners();
   }
 

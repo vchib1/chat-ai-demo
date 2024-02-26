@@ -4,14 +4,16 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 
 final geminiAPIProvider = Provider<GeminiAPI>((ref) => GeminiAPI());
 
+const _apiKey = "AIzaSyC1PD1LEXaKA5S0DMG5D-WmWqrkoaL3twE";
+
 class GeminiAPI {
-  final _apiKey = "AIzaSyC1PD1LEXaKA5S0DMG5D-WmWqrkoaL3twE";
+  final _chatModel = GenerativeModel(model: "gemini-pro", apiKey: _apiKey);
+  final _imageModel =
+      GenerativeModel(model: "gemini-pro-vision", apiKey: _apiKey);
 
-  Future<String> sendTextPrompt(List<Content> content) async {
+  Future<String> sendTextPrompt(String prompt) async {
     try {
-      final model = GenerativeModel(model: "gemini-pro", apiKey: _apiKey);
-
-      final response = await model.generateContent(content);
+      final response = await _chatModel.generateContent([Content.text(prompt)]);
 
       return response.text ?? "Something went wrong";
     } catch (e) {
@@ -21,10 +23,7 @@ class GeminiAPI {
 
   Future<String> sendImagePrompt(String prompt, List<Uint8List> images) async {
     try {
-      final model =
-          GenerativeModel(model: "gemini-pro-vision", apiKey: _apiKey);
-
-      final response = await model.generateContent([
+      final response = await _imageModel.generateContent([
         Content.multi([
           TextPart(prompt),
           ...images.map((image) => DataPart('image/jpeg', image))
