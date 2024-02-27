@@ -2,6 +2,7 @@ import 'package:chatgpt_api_demo/src/utils/extensions/build_context.dart';
 import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badge;
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 class ChatWidget extends StatelessWidget {
   final ChatUser currentUser;
@@ -42,7 +43,6 @@ class ChatWidget extends StatelessWidget {
         alwaysShowSend: true,
         sendButtonBuilder: (sendButton) {
           return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               /// Media Button
               if (enableMediaButton)
@@ -57,32 +57,41 @@ class ChatWidget extends StatelessWidget {
               else
                 const SizedBox.shrink(),
 
+              const SizedBox(width: 16.0),
+
               /// Send Button
               IconButton(
-                  onPressed: () {
-                    if (controller.text.isEmpty) {
-                      return;
-                    }
+                onPressed: () {
+                  if (controller.text.isEmpty) return;
 
-                    final msg = ChatMessage(
-                      text: controller.text,
-                      createdAt: DateTime.now(),
-                      user: currentUser,
-                    );
+                  final msg = ChatMessage(
+                    text: controller.text.trim(),
+                    createdAt: DateTime.now(),
+                    user: currentUser,
+                  );
 
-                    onSend(msg);
+                  onSend(msg);
 
-                    controller.clear();
-                  },
-                  icon: const Icon(Icons.send)),
+                  controller.clear();
+                },
+                icon: const Icon(Icons.send),
+              ),
             ],
           );
         },
       ),
       messageOptions: MessageOptions(
-        containerColor: context.colorScheme.primaryContainer,
+        containerColor: context.colorScheme.secondaryContainer,
+        currentUserContainerColor: context.colorScheme.secondaryContainer,
+        spaceWhenAvatarIsHidden: 10.0,
+        showOtherUsersAvatar: false,
+        messageTextBuilder: (message, previousMessage, nextMessage) {
+          return MarkdownBody(
+            data: message.text,
+            selectable: true,
+          );
+        },
         onLongPressMessage: onLongPressMessage,
-        marginDifferentAuthor: const EdgeInsets.all(1.0),
       ),
     );
   }
