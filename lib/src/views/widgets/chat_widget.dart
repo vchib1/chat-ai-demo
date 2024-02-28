@@ -81,8 +81,8 @@ class ChatWidget extends StatelessWidget {
         },
       ),
       messageOptions: MessageOptions(
+        currentUserContainerColor: context.colorScheme.primaryContainer,
         containerColor: context.colorScheme.secondaryContainer,
-        currentUserContainerColor: context.colorScheme.secondaryContainer,
         spaceWhenAvatarIsHidden: 10.0,
         showOtherUsersAvatar: false,
         messageTextBuilder: (message, previousMessage, nextMessage) {

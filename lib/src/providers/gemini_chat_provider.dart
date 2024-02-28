@@ -1,15 +1,14 @@
-import 'dart:typed_data';
+import 'dart:io';
 import 'package:chatgpt_api_demo/src/services/api/gemini_ai.dart';
 import 'package:dash_chat_2/dash_chat_2.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:image_picker/image_picker.dart';
-import '../utils/functions/file_to_uint8.dart';
-import '../utils/functions/xfile_to_chat_media.dart';
+import '../utils/functions/platform_file_to_chat_media.dart';
 
 final geminiChatNotifier = ChangeNotifierProvider<GeminiChatNotifier>(
-    (ref) => GeminiChatNotifier(api: GeminiAPI([])));
+    (ref) => GeminiChatNotifier(api: GeminiAPI()));
 
 class GeminiChatNotifier extends ChangeNotifier {
   final GeminiAPI _api;
@@ -30,7 +29,8 @@ class GeminiChatNotifier extends ChangeNotifier {
 
   bool get isLoading => _isLoading;
 
-  Future<void> sendPrompt(String prompt, List<XFile> selectedImages) async {
+  Future<void> sendPrompt(
+      String prompt, List<PlatformFile> selectedImages) async {
     try {
       if (selectedImages.isEmpty) {
         await _sendTextMessage(prompt);
@@ -47,42 +47,71 @@ class GeminiChatNotifier extends ChangeNotifier {
       _showLoading(true);
 
       _addMessageToList(user, prompt);
+      notifyListeners();
 
-      final botResponse = await _api.sendTextPrompt(prompt);
+      final botResponse = _api.sendTextPrompt(prompt);
 
-      _addMessageToList(bot, botResponse);
+      String message = "";
+
+      _addMessageToList(bot, message);
+
+      await for (final text in botResponse) {
+        if (_isLoading) {
+          _showLoading(false);
+        }
+        message += text;
+        _messages.first =
+            ChatMessage(user: bot, createdAt: DateTime.now(), text: message);
+        notifyListeners();
+      }
 
       _addChatHistory(Content.text(prompt));
-      _addChatHistory(Content('model', [TextPart(botResponse)]));
+      _addChatHistory(Content('model', [TextPart(message)]));
     } catch (e) {
-      throw e.toString();
+      _messages.first =
+          ChatMessage(user: bot, createdAt: DateTime.now(), text: e.toString());
+      notifyListeners();
     } finally {
       _showLoading(false);
     }
   }
 
   Future<void> _sendImageMessage(
-      String prompt, List<XFile> selectedImages) async {
+      String prompt, List<PlatformFile> selectedImages) async {
     try {
       _showLoading(true);
 
       _addMessageToList(
         user,
         prompt,
-        medias: xFilesToChatMediaImage(selectedImages),
+        medias: platformFilesToChatMediaImage(selectedImages),
       );
+      notifyListeners();
 
-      List<Uint8List> images = [];
+      List<File> images = [];
 
       for (final img in selectedImages) {
-        images.add(await xFileToUInt8List(img));
+        images.add(File(img.path!));
       }
 
-      final botResponse = await _api.sendImagePrompt(prompt, images);
+      final botResponse = _api.sendImagePrompt(prompt, images);
 
-      _addMessageToList(bot, botResponse);
+      String message = "";
+
+      await for (final text in botResponse) {
+        if (_isLoading) {
+          _addMessageToList(bot, message);
+          _showLoading(false);
+        }
+        message += text;
+        _messages.first =
+            ChatMessage(user: bot, createdAt: DateTime.now(), text: message);
+        notifyListeners();
+      }
     } catch (e) {
-      throw e.toString();
+      _messages.first =
+          ChatMessage(user: bot, createdAt: DateTime.now(), text: e.toString());
+      notifyListeners();
     } finally {
       _showLoading(false);
     }
@@ -99,8 +128,6 @@ class GeminiChatNotifier extends ChangeNotifier {
       ),
       ..._messages
     ]);
-
-    notifyListeners();
   }
 
   void _addChatHistory(Content message) {

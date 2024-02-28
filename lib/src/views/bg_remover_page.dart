@@ -11,9 +11,9 @@ class BGRemoverPage extends StatelessWidget {
       appBar: AppBar(),
       body: Consumer(
         builder: (context, ref, child) {
-          final state = ref.watch(bgRemoverNotifier);
+          final image = ref.watch(bgRemoverNotifier);
 
-          if (state == null) {
+          if (image == null) {
             return Center(
               child: TextButton(
                 onPressed: () =>
@@ -25,7 +25,7 @@ class BGRemoverPage extends StatelessWidget {
 
           return Container(
             alignment: Alignment.center,
-            child: Image.memory(state),
+            child: Image.memory(image),
           );
         },
       ),

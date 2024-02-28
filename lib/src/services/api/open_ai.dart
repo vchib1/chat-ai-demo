@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:chatgpt_api_demo/src/utils/constants/message_const.dart';
 import 'package:chatgpt_api_demo/src/utils/error/http_status_codes.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
@@ -22,7 +21,7 @@ class OpenAI {
   }) async {
     try {
       const model = "gpt-3.5-turbo";
-      const endPointChat = "/chat/completions";
+      const endPoint = "/chat/completions";
 
       final body = jsonEncode({
         "model": model,
@@ -33,7 +32,7 @@ class OpenAI {
       });
 
       final response = await http.post(
-        Uri.parse("$_baseURL$endPointChat"),
+        Uri.parse("$_baseURL$endPoint"),
         headers: _headers,
         body: body,
       );
@@ -63,7 +62,7 @@ class OpenAI {
   }) async {
     try {
       const model = "dall-e-2";
-      const endPointImage = "/images/generations";
+      const endPoint = "/images/generations";
 
       final body = jsonEncode({
         "model": model,
@@ -73,12 +72,10 @@ class OpenAI {
       });
 
       final response = await http.post(
-        Uri.parse("$_baseURL$endPointImage"),
+        Uri.parse("$_baseURL$endPoint"),
         headers: _headers,
         body: body,
       );
-
-      debugPrint(response.body);
 
       switch (response.statusCode) {
         case Status.ok:

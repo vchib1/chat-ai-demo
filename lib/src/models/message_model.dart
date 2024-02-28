@@ -9,9 +9,8 @@ class Message extends Equatable {
 
   const Message({required this.role, required this.content});
 
-  Map<String, dynamic> toMap() {
-    return {MessageConst.role: role, MessageConst.content: content};
-  }
+  Map<String, dynamic> toMap() =>
+      {MessageConst.role: role, MessageConst.content: content};
 
   @override
   List<Object?> get props => [role, content];
