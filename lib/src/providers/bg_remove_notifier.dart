@@ -32,4 +32,6 @@ class BGRemoverNotifier extends StateNotifier<Uint8List?> {
       rethrow;
     }
   }
+
+  void get clearImage => state = null;
 }

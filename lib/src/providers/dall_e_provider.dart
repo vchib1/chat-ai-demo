@@ -26,4 +26,6 @@ class DallEStateNotifier extends StateNotifier<DallEState> {
       state = DallEErrorState(message: e.toString());
     }
   }
+
+  void get resetState => state = DallEInitialState();
 }

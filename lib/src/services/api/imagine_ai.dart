@@ -43,7 +43,6 @@ class ImageGenerationAPI {
   Future<Uint8List> backgroundRemover(File imageFile) async {
     try {
       final headers = <String, String>{"Authorization": "Bearer $_apiKey"};
-
       final file = await http.MultipartFile.fromPath('image', imageFile.path);
 
       final request = http.MultipartRequest(
@@ -56,10 +55,10 @@ class ImageGenerationAPI {
       final res = await request.send();
 
       if (res.statusCode == Status.ok) {
-        final responseData = await res.stream.toBytes();
-        return responseData;
+        final result = await res.stream.toBytes();
+        return result;
       } else {
-        throw "Error: ${res.statusCode} : ${res.reasonPhrase}";
+        throw "Error: ${res.statusCode}, ${res.reasonPhrase}";
       }
     } catch (e) {
       rethrow;

@@ -25,4 +25,6 @@ class ImagineStateNotifier extends StateNotifier<ImagineState> {
       state = ImagineErrorState(message: e.toString());
     }
   }
+
+  void get resetState => state = ImagineInitialState();
 }

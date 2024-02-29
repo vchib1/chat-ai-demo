@@ -1,74 +1,61 @@
 import 'package:chatgpt_api_demo/src/providers/states/image_states.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/imagine_notifier.dart';
+import '../utils/constants/app_const.dart';
 
-class ImagineAIPage extends StatefulWidget {
+class ImagineAIPage extends HookWidget {
   const ImagineAIPage({super.key});
 
-  @override
-  State<ImagineAIPage> createState() => _ImagineAIPageState();
-}
-
-class _ImagineAIPageState extends State<ImagineAIPage> {
-  //
-  late TextEditingController _controller;
-
-  late int _selectedArtStyle;
-
-  final List<List<dynamic>> _artStyleOptions = [
-    ["Anime", 21],
-    ["Portrait", 26],
-    ["Realistic", 29],
-    ["Imagine V1", 27],
-    ["Imagine V3", 28],
-    ["Imagine V4", 30],
-    ["Imagine V4 - Creative", 31],
-    ["Imagine V4.1", 32],
-    ["Imagine V5", 33],
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-    _selectedArtStyle = _artStyleOptions.first[1];
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _controller.dispose();
-  }
-
-  Future<void> _sendPrompt(WidgetRef ref) async {
-    final prompt = _controller.text.trim();
+  Future<void> _sendPrompt(
+    WidgetRef ref,
+    TextEditingController controller,
+    int selectedArtStyle,
+  ) async {
+    final prompt = controller.text.trim();
 
     if (prompt.isEmpty) return;
 
-    _controller.clear();
-    await ref.read(imagineState.notifier).sendPrompt(prompt, _selectedArtStyle);
+    controller.clear();
+    await ref.read(imagineState.notifier).sendPrompt(prompt, selectedArtStyle);
   }
 
   @override
   Widget build(BuildContext context) {
+    final selectedArtStyle = useState(artStyle.first.id);
+    final controller = useTextEditingController();
+
     return Scaffold(
       appBar: AppBar(
         title: DropdownButton(
-            value: _selectedArtStyle,
-            items: _artStyleOptions
-                .map((e) => DropdownMenuItem(
-                      value: e[1] as int,
-                      child: Text(e[0]),
+            value: selectedArtStyle.value,
+            items: artStyle
+                .map((style) => DropdownMenuItem(
+                      value: style.id,
+                      child: Text(style.name),
                     ))
                 .toList(),
-            onChanged: (value) => setState(() => _selectedArtStyle = value!)),
+            onChanged: (value) => selectedArtStyle.value = value!),
+        actions: [
+          Consumer(
+            builder: (context, ref, child) {
+              if (ref.watch(imagineState) is ImagineLoadedState) {
+                return TextButton(
+                  onPressed: () => ref.read(imagineState.notifier).resetState,
+                  child: const Text("Clear"),
+                );
+              }
+
+              return const SizedBox.shrink();
+            },
+          )
+        ],
       ),
-      body: Stack(
-        alignment: Alignment.bottomCenter,
+      body: Column(
         children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height * .80,
+          Expanded(
             child: Consumer(
               builder: (context, ref, child) {
                 final state = ref.watch(imagineState);
@@ -96,16 +83,16 @@ class _ImagineAIPageState extends State<ImagineAIPage> {
           Consumer(
             builder: (context, ref, child) {
               return Container(
-                height: MediaQuery.of(context).size.height * .1,
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 color: Theme.of(context).colorScheme.secondaryContainer,
                 child: Row(
                   children: [
                     Expanded(
                       child: TextField(
-                        controller: _controller,
+                        controller: controller,
                         style: Theme.of(context).textTheme.bodyMedium,
-                        onSubmitted: (_) => _sendPrompt(ref),
+                        onSubmitted: (_) => _sendPrompt(
+                            ref, controller, selectedArtStyle.value),
                         decoration: const InputDecoration(
                           hintText: "Message",
                           border: InputBorder.none,
@@ -113,7 +100,8 @@ class _ImagineAIPageState extends State<ImagineAIPage> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () => _sendPrompt(ref),
+                      onPressed: () =>
+                          _sendPrompt(ref, controller, selectedArtStyle.value),
                       icon: const Icon(Icons.send),
                     ),
                   ],

@@ -8,7 +8,24 @@ class BGRemoverPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [
+          Consumer(
+            builder: (context, ref, child) {
+              if (ref.watch(bgRemoverNotifier) == null) {
+                return const SizedBox.shrink();
+              }
+
+              return TextButton(
+                onPressed: () {
+                  ref.read(bgRemoverNotifier.notifier).clearImage;
+                },
+                child: const Text("Clear"),
+              );
+            },
+          )
+        ],
+      ),
       body: Consumer(
         builder: (context, ref, child) {
           final image = ref.watch(bgRemoverNotifier);

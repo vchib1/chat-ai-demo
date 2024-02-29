@@ -1,45 +1,44 @@
 import 'package:chatgpt_api_demo/src/providers/dall_e_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/states/image_states.dart';
 
-class DallEPage extends StatefulWidget {
+class DallEPage extends HookWidget {
   const DallEPage({super.key});
 
-  @override
-  State<DallEPage> createState() => _DallEPageState();
-}
-
-class _DallEPageState extends State<DallEPage> {
-  //
-  late TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _controller.dispose();
-  }
-
-  Future<void> _sendPrompt(WidgetRef ref) async {
-    final prompt = _controller.text.trim();
+  Future<void> _sendPrompt(
+      WidgetRef ref, TextEditingController controller) async {
+    final prompt = controller.text.trim();
 
     if (prompt.isEmpty) return;
 
-    _controller.clear();
+    controller.clear();
 
     await ref.read(dallEState.notifier).sendPrompt(prompt);
   }
 
   @override
   Widget build(BuildContext context) {
+    final controller = useTextEditingController();
+
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [
+          Consumer(
+            builder: (context, ref, child) {
+              if (ref.watch(dallEState) is DallELoadedState) {
+                return TextButton(
+                  onPressed: () => ref.read(dallEState.notifier).resetState,
+                  child: const Text("Clear"),
+                );
+              }
+
+              return const SizedBox.shrink();
+            },
+          )
+        ],
+      ),
       body: Stack(
         alignment: Alignment.bottomCenter,
         children: [
@@ -83,9 +82,9 @@ class _DallEPageState extends State<DallEPage> {
                   children: [
                     Expanded(
                       child: TextField(
-                        controller: _controller,
+                        controller: controller,
                         style: Theme.of(context).textTheme.bodyMedium,
-                        onSubmitted: (_) => _sendPrompt(ref),
+                        onSubmitted: (_) => _sendPrompt(ref, controller),
                         decoration: const InputDecoration(
                           hintText: "Message",
                           border: InputBorder.none,
@@ -93,7 +92,7 @@ class _DallEPageState extends State<DallEPage> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () => _sendPrompt(ref),
+                      onPressed: () => _sendPrompt(ref, controller),
                       icon: const Icon(Icons.send),
                     ),
                   ],

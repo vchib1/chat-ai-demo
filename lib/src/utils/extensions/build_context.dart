@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 extension BuildContextExtension on BuildContext {
-  /// get device [height] and [width] information
+  /// get device [height] information
   double get height => MediaQuery.of(this).size.height;
+
+  /// get device [width] information
   double get width => MediaQuery.of(this).size.width;
 
   /// get [screenPadding]
@@ -30,7 +32,7 @@ extension BuildContextExtension on BuildContext {
 
   /// to push page [materialPagePush]
   Future<void> push(Widget page) async {
-    Navigator.push(this, MaterialPageRoute(builder: (context) => page));
+    await Navigator.push(this, MaterialPageRoute(builder: (context) => page));
   }
 
   /// to pushReplacement page [materialPagePush]
