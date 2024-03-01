@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:chatgpt_api_demo/src/services/api/gemini_ai.dart';
+import 'package:chatgpt_api_demo/src/utils/constants/message_const.dart';
 import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
@@ -15,8 +16,8 @@ class GeminiChatNotifier extends ChangeNotifier {
 
   GeminiChatNotifier({required GeminiAPI api}) : _api = api;
 
-  final ChatUser user = ChatUser(id: "idUser", firstName: "User");
-  final ChatUser bot = ChatUser(id: "idBot", firstName: "Gemini");
+  final ChatUser user = ChatUser(id: MessageConst.userRole);
+  final ChatUser bot = ChatUser(id: MessageConst.assistantRole);
 
   final int _maxChatHistoryLength = 6;
 
@@ -88,11 +89,7 @@ class GeminiChatNotifier extends ChangeNotifier {
       );
       notifyListeners();
 
-      List<File> images = [];
-
-      for (final img in selectedImages) {
-        images.add(File(img.path!));
-      }
+      List<File> images = selectedImages.map((e) => File(e.path!)).toList();
 
       final botResponse = _api.sendImagePrompt(prompt, images);
 

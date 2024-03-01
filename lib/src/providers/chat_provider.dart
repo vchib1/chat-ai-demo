@@ -1,5 +1,6 @@
-import 'package:chatgpt_api_demo/src/models/message_model.dart';
 import 'package:chatgpt_api_demo/src/services/api/open_ai.dart';
+import 'package:chatgpt_api_demo/src/utils/constants/message_const.dart';
+import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,26 +12,28 @@ class ChatNotifier extends ChangeNotifier {
 
   ChatNotifier({required OpenAI api}) : _api = api;
 
-  final List<Message> _messages = [];
-  List<Message> get messages => _messages;
+  final ChatUser user = ChatUser(id: MessageConst.userRole);
+  final ChatUser assistant = ChatUser(id: MessageConst.assistantRole);
 
-  final List<Message> _selectedMessages = [];
-  List<Message> get selectedMessages => _selectedMessages;
+  List<ChatMessage> _messages = [];
+  List<ChatMessage> get messages => _messages;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
   final List<Map<String, dynamic>> _conversationData = [];
 
-  void _addMessageToList(Message message) {
-    _messages.add(message);
+  void _addMessageToList(ChatMessage message) {
+    _messages = [message, ..._messages];
 
     if (_conversationData.length >= 6) {
       _conversationData.removeAt(0);
     }
 
-    _conversationData.add(message.toMap());
-    notifyListeners();
+    _conversationData.add({
+      MessageConst.role: message.user.id,
+      MessageConst.content: message.text,
+    });
   }
 
   void _showLoading(bool value) {
@@ -40,43 +43,42 @@ class ChatNotifier extends ChangeNotifier {
 
   Future<void> sendMessage(String message) async {
     try {
-      UserMessage userMessage = UserMessage(content: message);
-
-      _addMessageToList(userMessage);
       _showLoading(true);
 
+      ChatMessage userMessage = ChatMessage(
+        user: user,
+        createdAt: DateTime.now(),
+        text: message,
+      );
+
+      _addMessageToList(userMessage);
+      notifyListeners();
+
       final botRawResponse = await _api.sendPromptChat(
-        prompt: userMessage.content,
+        prompt: userMessage.text,
         conversationData: _conversationData,
       );
 
-      _addMessageToList(AssistantMessage.fromMap(botRawResponse));
-      _showLoading(false);
+      ChatMessage assistantMessage = ChatMessage(
+        user: assistant,
+        createdAt: DateTime.now(),
+        text: botRawResponse[MessageConst.content],
+      );
+
+      _addMessageToList(assistantMessage);
+      notifyListeners();
     } catch (e) {
       _showLoading(false);
-      throw e.toString();
-    }
-  }
+      ChatMessage assistantMessage = ChatMessage(
+        user: assistant,
+        createdAt: DateTime.now(),
+        text: e.toString(),
+      );
 
-  void clearSelectedMessages() => _selectedMessages.clear();
-
-  void deleteSelectedMessages() {
-    try {
-      _messages.removeWhere((message) => _selectedMessages.contains(message));
-      _selectedMessages.clear();
+      _addMessageToList(assistantMessage);
       notifyListeners();
-    } catch (_) {}
-  }
-
-  void selectMessage(Message message, bool selectMode) {
-    if (!selectMode) return;
-
-    if (_selectedMessages.contains(message)) {
-      _selectedMessages.remove(message);
-    } else {
-      _selectedMessages.add(message);
+    } finally {
+      _showLoading(false);
     }
-
-    notifyListeners();
   }
 }
