@@ -21,7 +21,7 @@ class ChatPage extends HookWidget {
           return ChatWidget(
             controller: controller,
             currentUser: chat.user,
-            onSend: (msg) => chat.sendMessage(msg.text),
+            onSend: (message) => chat.sendMessage(message.text),
             messages: messages,
             typingUsers: isLoading ? [chat.assistant] : [],
           );

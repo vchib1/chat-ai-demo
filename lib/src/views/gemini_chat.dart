@@ -12,7 +12,8 @@ class GeminiChatPage extends HookWidget {
   Future<void> _pickImages(
       BuildContext context, ValueNotifier<List<PlatformFile>> images) async {
     try {
-      final pickedFiles = await FilePicker.platform.pickFiles();
+      final pickedFiles =
+          await FilePicker.platform.pickFiles(type: FileType.image);
 
       if (pickedFiles == null) return;
 

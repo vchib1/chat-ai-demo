@@ -31,13 +31,12 @@ class GeminiChatNotifier extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
   Future<void> sendPrompt(
-      String prompt, List<PlatformFile> selectedImages) async {
+      String prompt, List<PlatformFile> pickedImages) async {
     try {
-      if (selectedImages.isEmpty) {
-        await _sendTextMessage(prompt);
-      } else {
-        await _sendImageMessage(prompt, selectedImages);
+      if (pickedImages.isEmpty) {
+        return await _sendTextMessage(prompt);
       }
+      await _sendImageMessage(prompt, pickedImages);
     } catch (e) {
       rethrow;
     }
@@ -57,9 +56,8 @@ class GeminiChatNotifier extends ChangeNotifier {
       _addMessageToList(bot, message);
 
       await for (final text in botResponse) {
-        if (_isLoading) {
-          _showLoading(false);
-        }
+        isLoading ? _showLoading(false) : null;
+
         message += text;
         _messages.first =
             ChatMessage(user: bot, createdAt: DateTime.now(), text: message);
@@ -97,9 +95,9 @@ class GeminiChatNotifier extends ChangeNotifier {
 
       await for (final text in botResponse) {
         if (_isLoading) {
-          _addMessageToList(bot, message);
           _showLoading(false);
         }
+
         message += text;
         _messages.first =
             ChatMessage(user: bot, createdAt: DateTime.now(), text: message);
