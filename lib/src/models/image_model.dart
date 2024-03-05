@@ -6,8 +6,8 @@ class ImageModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'created': created.millisecondsSinceEpoch,
-      'data': images.map((url) => {"url": url}).toList()
+      'created': (created.millisecondsSinceEpoch / 1000).floor(),
+      'data': images.map((url) => {'url': url}).toList()
     };
   }
 

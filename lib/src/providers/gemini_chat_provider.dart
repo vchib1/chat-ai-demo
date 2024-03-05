@@ -12,7 +12,7 @@ final geminiChatNotifier = ChangeNotifierProvider<GeminiChatNotifier>(
     (ref) => GeminiChatNotifier(api: GeminiAPI()));
 
 class GeminiChatNotifier extends ChangeNotifier {
-  final GeminiAPI _api;
+  final GeminiAPI? _api;
 
   GeminiChatNotifier({required GeminiAPI api}) : _api = api;
 
@@ -24,11 +24,10 @@ class GeminiChatNotifier extends ChangeNotifier {
   List<ChatMessage> _messages = [];
   List<ChatMessage> get messages => _messages;
 
-  final List<Content> _chatHistory = [];
-
   bool _isLoading = false;
-
   bool get isLoading => _isLoading;
+
+  final List<Content> _chatHistory = [];
 
   Future<void> sendPrompt(
       String prompt, List<PlatformFile> pickedImages) async {
@@ -49,14 +48,16 @@ class GeminiChatNotifier extends ChangeNotifier {
       _addMessageToList(user, prompt);
       notifyListeners();
 
-      final botResponse = _api.sendTextPrompt(prompt);
+      assert(_api != null);
+      final botResponse = _api!.sendTextPrompt(prompt);
 
       String message = "";
 
-      _addMessageToList(bot, message);
-
       await for (final text in botResponse) {
-        isLoading ? _showLoading(false) : null;
+        if (isLoading) {
+          _addMessageToList(bot, message);
+          _showLoading(false);
+        }
 
         message += text;
         _messages.first =
@@ -89,12 +90,14 @@ class GeminiChatNotifier extends ChangeNotifier {
 
       List<File> images = selectedImages.map((e) => File(e.path!)).toList();
 
-      final botResponse = _api.sendImagePrompt(prompt, images);
+      assert(_api != null);
+      final botResponse = _api!.sendImagePrompt(prompt, images);
 
       String message = "";
 
       await for (final text in botResponse) {
-        if (_isLoading) {
+        if (isLoading) {
+          _addMessageToList(bot, message);
           _showLoading(false);
         }
 

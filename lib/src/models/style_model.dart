@@ -2,5 +2,5 @@ class Style {
   final int id;
   final String name;
 
-  const Style({required this.id, required this.name});
+  const Style(this.id, this.name);
 }

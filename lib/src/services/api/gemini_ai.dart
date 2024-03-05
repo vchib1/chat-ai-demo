@@ -13,16 +13,17 @@ class GeminiAPI {
   }
 
   _initialize() {
-    _chatModel = GenerativeModel(model: "gemini-pro", apiKey: _apiKey)
-        .startChat(history: []);
-    _imageModel = GenerativeModel(model: "gemini-pro-vision", apiKey: _apiKey);
+    if (_chatModel == null && _imageModel == null) {
+      _chatModel = GenerativeModel(model: "gemini-pro", apiKey: _apiKey)
+          .startChat(history: []);
+      _imageModel =
+          GenerativeModel(model: "gemini-pro-vision", apiKey: _apiKey);
+    }
   }
 
   Stream<String> sendTextPrompt(String prompt) async* {
     try {
-      if (_chatModel == null) {
-        _initialize();
-      }
+      _initialize();
 
       final response = _chatModel!.sendMessage(Content.text(prompt)).asStream();
 
@@ -39,9 +40,7 @@ class GeminiAPI {
     List<File> files,
   ) async* {
     try {
-      if (_imageModel == null) {
-        _initialize();
-      }
+      _initialize();
 
       final response = _imageModel!.generateContentStream([
         Content.multi([

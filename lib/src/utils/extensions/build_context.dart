@@ -30,16 +30,12 @@ extension BuildContextExtension on BuildContext {
   /// get device themeMode or [brightness]
   Brightness get brightness => MediaQuery.of(this).platformBrightness;
 
-  /// to push page [materialPagePush]
-  Future<void> push(Widget page) async {
-    await Navigator.push(this, MaterialPageRoute(builder: (context) => page));
-  }
+  /// to [push] page
+  Future<void> push(Widget page) async =>
+      await Navigator.push(this, MaterialPageRoute(builder: (context) => page));
 
-  /// to pushReplacement page [materialPagePush]
-  Future<void> pushReplacement({required Widget page}) async {
-    Navigator.pushReplacement(
-      this,
-      MaterialPageRoute(builder: (context) => page),
-    );
-  }
+  /// to [pushReplacement] page
+  Future<void> pushReplacement({required Widget page}) async =>
+      Navigator.pushReplacement(
+          this, MaterialPageRoute(builder: (context) => page));
 }

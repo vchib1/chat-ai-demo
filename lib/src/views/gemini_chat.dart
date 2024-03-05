@@ -12,8 +12,8 @@ class GeminiChatPage extends HookWidget {
   Future<void> _pickImages(
       BuildContext context, ValueNotifier<List<PlatformFile>> images) async {
     try {
-      final pickedFiles =
-          await FilePicker.platform.pickFiles(type: FileType.image);
+      final pickedFiles = await FilePicker.platform.pickFiles(
+          type: FileType.custom, allowedExtensions: ['png', 'jpeg', 'jpg']);
 
       if (pickedFiles == null) return;
 
@@ -49,7 +49,8 @@ class GeminiChatPage extends HookWidget {
             typingUsers: isLoading ? [chat.bot] : [],
             enableMediaButton: true,
             showBadge: selectedImageCount > 0,
-            onMediaPressed: () async => _pickImages(context, selectedImages),
+            onMediaPressed: () async =>
+                !isLoading ? await _pickImages(context, selectedImages) : null,
             badgeContent: Text("$selectedImageCount"),
           );
         },

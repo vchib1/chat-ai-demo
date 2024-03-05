@@ -91,7 +91,10 @@ class ImagineAIPage extends HookWidget {
                         controller: controller,
                         style: Theme.of(context).textTheme.bodyMedium,
                         onSubmitted: (_) => _sendPrompt(
-                            ref, controller, selectedArtStyle.value),
+                          ref,
+                          controller,
+                          selectedArtStyle.value,
+                        ),
                         decoration: const InputDecoration(
                           hintText: "Message",
                           border: InputBorder.none,

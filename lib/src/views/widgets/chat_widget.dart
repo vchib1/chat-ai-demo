@@ -14,6 +14,7 @@ class ChatWidget extends StatelessWidget {
   final List<ChatUser>? typingUsers;
   final Widget? badgeContent;
   final void Function()? onMediaPressed;
+  final int pickedMediaLength;
   final dynamic Function(ChatMessage)? onLongPressMessage;
 
   const ChatWidget({
@@ -26,6 +27,7 @@ class ChatWidget extends StatelessWidget {
     this.badgeContent,
     this.onMediaPressed,
     this.typingUsers,
+    this.pickedMediaLength = 0,
     this.enableMediaButton = false,
     this.onLongPressMessage,
   });
@@ -62,7 +64,9 @@ class ChatWidget extends StatelessWidget {
               /// Send Button
               IconButton(
                 onPressed: () {
-                  if (controller.text.isEmpty) return;
+                  if (pickedMediaLength != 0) {
+                    if (controller.text.isEmpty) return;
+                  }
 
                   final msg = ChatMessage(
                     text: controller.text.trim(),
