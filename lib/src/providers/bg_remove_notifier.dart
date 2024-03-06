@@ -16,13 +16,15 @@ class BGRemoverNotifier extends StateNotifier<Uint8List?> {
       : _api = api,
         super(null);
 
+  void get clearImage => state = null;
+
   Future<void> pickImage() async {
     try {
       final pickedFile =
           await ImagePicker().pickImage(source: ImageSource.gallery);
 
       if (pickedFile != null) {
-        state = await xFileToUInt8List(pickedFile);
+        state = await fileToUInt8List(pickedFile.path);
 
         state = await _api.backgroundRemover(File(pickedFile.path));
       } else {
@@ -32,6 +34,4 @@ class BGRemoverNotifier extends StateNotifier<Uint8List?> {
       rethrow;
     }
   }
-
-  void get clearImage => state = null;
 }

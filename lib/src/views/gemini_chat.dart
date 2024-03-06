@@ -1,5 +1,7 @@
 import 'package:chatgpt_api_demo/src/providers/gemini_chat_provider.dart';
+import 'package:chatgpt_api_demo/src/utils/extensions/build_context.dart';
 import 'package:chatgpt_api_demo/src/utils/snackbar.dart';
+import 'package:chatgpt_api_demo/src/views/full_screen_media.dart';
 import 'package:chatgpt_api_demo/src/views/widgets/chat_widget.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -42,16 +44,17 @@ class GeminiChatPage extends HookWidget {
           return ChatWidget(
             controller: inputController,
             currentUser: chat.user,
-            onSend: (msg) => chat
-                .sendPrompt(msg.text, selectedImages.value)
-                .then((value) => selectedImages.value.clear()),
             messages: messages,
             typingUsers: isLoading ? [chat.bot] : [],
             enableMediaButton: true,
             showBadge: selectedImageCount > 0,
+            badgeContent: Text("$selectedImageCount"),
+            onTapMedia: (media) => context.push(FullScreenView(media)),
+            onSend: (msg) => chat
+                .sendPrompt(msg.text, selectedImages.value)
+                .then((value) => selectedImages.value.clear()),
             onMediaPressed: () async =>
                 !isLoading ? await _pickImages(context, selectedImages) : null,
-            badgeContent: Text("$selectedImageCount"),
           );
         },
       ),

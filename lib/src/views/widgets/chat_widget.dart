@@ -14,6 +14,7 @@ class ChatWidget extends StatelessWidget {
   final List<ChatUser>? typingUsers;
   final Widget? badgeContent;
   final void Function()? onMediaPressed;
+  final void Function(ChatMedia)? onTapMedia;
   final int pickedMediaLength;
   final dynamic Function(ChatMessage)? onLongPressMessage;
 
@@ -30,6 +31,7 @@ class ChatWidget extends StatelessWidget {
     this.pickedMediaLength = 0,
     this.enableMediaButton = false,
     this.onLongPressMessage,
+    this.onTapMedia,
   });
 
   @override
@@ -89,6 +91,7 @@ class ChatWidget extends StatelessWidget {
         containerColor: context.colorScheme.secondaryContainer,
         spaceWhenAvatarIsHidden: 10.0,
         showOtherUsersAvatar: false,
+        onTapMedia: onTapMedia,
         messageTextBuilder: (message, previousMessage, nextMessage) {
           return MarkdownBody(
             data: message.text,

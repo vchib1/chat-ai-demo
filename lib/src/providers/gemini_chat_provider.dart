@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import '../models/message_model.dart';
 import '../utils/functions/platform_file_to_chat_media.dart';
 
 final geminiChatNotifier = ChangeNotifierProvider<GeminiChatNotifier>(
@@ -19,10 +20,10 @@ class GeminiChatNotifier extends ChangeNotifier {
   final ChatUser user = ChatUser(id: MessageConst.userRole);
   final ChatUser bot = ChatUser(id: MessageConst.assistantRole);
 
-  final int _maxChatHistoryLength = 6;
+  int get _maxChatHistoryLength => 6;
 
-  List<ChatMessage> _messages = [];
-  List<ChatMessage> get messages => _messages;
+  List<Message> _messages = [];
+  List<Message> get messages => _messages;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -30,11 +31,14 @@ class GeminiChatNotifier extends ChangeNotifier {
   final List<Content> _chatHistory = [];
 
   Future<void> sendPrompt(
-      String prompt, List<PlatformFile> pickedImages) async {
+    String prompt,
+    List<PlatformFile> pickedImages,
+  ) async {
     try {
       if (pickedImages.isEmpty) {
         return await _sendTextMessage(prompt);
       }
+
       await _sendImageMessage(prompt, pickedImages);
     } catch (e) {
       rethrow;
@@ -60,24 +64,25 @@ class GeminiChatNotifier extends ChangeNotifier {
         }
 
         message += text;
-        _messages.first =
-            ChatMessage(user: bot, createdAt: DateTime.now(), text: message);
+        _updateBotMessage(message);
         notifyListeners();
       }
 
       _addChatHistory(Content.text(prompt));
       _addChatHistory(Content('model', [TextPart(message)]));
+    } on SocketException catch (_) {
+      _addErrorMsg("No internet connection");
     } catch (e) {
-      _messages.first =
-          ChatMessage(user: bot, createdAt: DateTime.now(), text: e.toString());
-      notifyListeners();
+      _addErrorMsg("$e");
     } finally {
       _showLoading(false);
     }
   }
 
   Future<void> _sendImageMessage(
-      String prompt, List<PlatformFile> selectedImages) async {
+    String prompt,
+    List<PlatformFile> selectedImages,
+  ) async {
     try {
       _showLoading(true);
 
@@ -102,29 +107,30 @@ class GeminiChatNotifier extends ChangeNotifier {
         }
 
         message += text;
-        _messages.first =
-            ChatMessage(user: bot, createdAt: DateTime.now(), text: message);
-        notifyListeners();
+        _updateBotMessage(message);
       }
+    } on SocketException catch (_) {
+      _addErrorMsg("No internet connection");
     } catch (e) {
-      _messages.first =
-          ChatMessage(user: bot, createdAt: DateTime.now(), text: e.toString());
-      notifyListeners();
+      _addErrorMsg("$e");
     } finally {
       _showLoading(false);
     }
   }
 
-  void _addMessageToList(ChatUser user, String text,
-      {List<ChatMedia>? medias}) {
+  void _addMessageToList(
+    ChatUser user,
+    String text, {
+    List<ChatMedia>? medias,
+  }) {
     _messages = List.from([
-      ChatMessage(
+      Message(
         user: user,
         createdAt: DateTime.now(),
         text: text,
         medias: medias,
       ),
-      ..._messages
+      ...messages
     ]);
   }
 
@@ -137,6 +143,16 @@ class GeminiChatNotifier extends ChangeNotifier {
 
   void _showLoading(bool value) {
     _isLoading = value;
+    notifyListeners();
+  }
+
+  void _addErrorMsg(String message) {
+    _messages.first = _messages.first.copyWith("")..copyWith(message);
+    notifyListeners();
+  }
+
+  void _updateBotMessage(String message) {
+    _messages.first = _messages.first.copyWith(message);
     notifyListeners();
   }
 }
