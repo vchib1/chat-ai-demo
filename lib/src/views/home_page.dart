@@ -1,4 +1,5 @@
 import 'package:chatgpt_api_demo/src/utils/extensions/build_context.dart';
+import 'package:chatgpt_api_demo/src/utils/shared_pref.dart';
 import 'package:chatgpt_api_demo/src/views/bg_remover_page.dart';
 import 'package:chatgpt_api_demo/src/views/chat_page.dart';
 import 'package:chatgpt_api_demo/src/views/dall_e_ai.dart';
@@ -16,7 +17,7 @@ class HomePage extends StatelessWidget {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: <Widget>[
             MaterialButton(
               color: context.colorScheme.secondaryContainer,
               minWidth: context.width * .50,
