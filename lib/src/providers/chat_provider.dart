@@ -8,9 +8,9 @@ final chatNotifier = ChangeNotifierProvider(
     (ref) => ChatNotifier(api: ref.watch(openAIProvider)));
 
 class ChatNotifier extends ChangeNotifier {
-  final OpenAI _api;
-
   ChatNotifier({required OpenAI api}) : _api = api;
+
+  final OpenAI _api;
 
   final ChatUser user = ChatUser(id: MessageConst.userRole);
   final ChatUser assistant = ChatUser(id: MessageConst.assistantRole);
@@ -45,7 +45,7 @@ class ChatNotifier extends ChangeNotifier {
     try {
       _showLoading(true);
 
-      ChatMessage userMessage = ChatMessage(
+      final userMessage = ChatMessage(
         user: user,
         createdAt: DateTime.now(),
         text: message,
@@ -59,7 +59,7 @@ class ChatNotifier extends ChangeNotifier {
         conversationData: _conversationData,
       );
 
-      ChatMessage assistantMessage = ChatMessage(
+      final assistantMessage = ChatMessage(
         user: assistant,
         createdAt: DateTime.now(),
         text: botRawResponse[MessageConst.content],
@@ -69,7 +69,7 @@ class ChatNotifier extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       _showLoading(false);
-      ChatMessage assistantMessage = ChatMessage(
+      final assistantMessage = ChatMessage(
         user: assistant,
         createdAt: DateTime.now(),
         text: e.toString(),

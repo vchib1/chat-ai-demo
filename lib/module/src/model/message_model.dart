@@ -9,9 +9,27 @@ class ChatMessage {
     this.media,
   }) : createdAt = createdAt ?? DateTime.now();
 
+  factory ChatMessage.fromMap(Map<String, dynamic> map) {
+    return ChatMessage(
+      user: ChatUser.fromMap(map['user'] as Map<String, dynamic>),
+      messageText: map['messageText'] as String,
+      createdAt: map['createdAt'] != null
+          ? DateTime.parse(map['createdAt'] as String)
+          : null,
+      media: map['media'] != null
+          ? (map['media'] as List)
+              .map((e) => ChatMedia.fromMap(e as Map<String, dynamic>))
+              .toList()
+          : null,
+    );
+  }
+
   final ChatUser user;
+
   final DateTime createdAt;
+
   final String messageText;
+
   final List<ChatMedia>? media;
 
   Map<String, dynamic> toMap() {
@@ -21,18 +39,5 @@ class ChatMessage {
       'messageText': messageText,
       'media': media?.map((e) => e.toMap()).toList(),
     };
-  }
-
-  factory ChatMessage.fromMap(Map<String, dynamic> map) {
-    return ChatMessage(
-      user: ChatUser.fromMap(map['user']),
-      messageText: map['messageText'] as String,
-      createdAt: map['createdAt'] != null
-          ? DateTime.parse(map['createdAt'] as String)
-          : null,
-      media: map['media'] != null
-          ? (map['media'] as List).map((e) => ChatMedia.fromMap(e)).toList()
-          : null,
-    );
   }
 }
