@@ -13,12 +13,6 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const TestPage()));
-        },
-      ),
       appBar: AppBar(),
       body: Center(
         child: Column(

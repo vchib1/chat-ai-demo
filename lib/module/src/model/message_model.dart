@@ -40,4 +40,18 @@ class ChatMessage {
       'media': media?.map((e) => e.toMap()).toList(),
     };
   }
+
+  ChatMessage copyWith({
+    ChatUser? user,
+    DateTime? createdAt,
+    String? messageText,
+    List<ChatMedia>? media,
+  }) {
+    return ChatMessage(
+      user: user ?? this.user,
+      createdAt: createdAt ?? this.createdAt,
+      messageText: messageText ?? this.messageText,
+      media: media ?? this.media,
+    );
+  }
 }

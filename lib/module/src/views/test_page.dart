@@ -39,6 +39,7 @@ class TestPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(),
       body: ChatView(
+        inputController: TextEditingController(),
         currentUser: user1,
         messages: list,
       ),

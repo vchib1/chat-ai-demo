@@ -1,12 +1,13 @@
 import 'dart:io';
+import 'package:chatgpt_api_demo/module/src/model/message_model.dart';
 import 'package:chatgpt_api_demo/src/services/api/gemini_ai.dart';
 import 'package:chatgpt_api_demo/src/utils/constants/message_const.dart';
-import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import '../models/message_model.dart';
+import '../../module/src/model/media_model.dart';
+import '../../module/src/model/user_model.dart';
 import '../utils/functions/platform_file_to_chat_media.dart';
 
 final geminiChatNotifier = ChangeNotifierProvider<GeminiChatNotifier>(
@@ -22,8 +23,8 @@ class GeminiChatNotifier extends ChangeNotifier {
 
   int get _maxChatHistoryLength => 6;
 
-  List<Message> _messages = [];
-  List<Message> get messages => _messages;
+  List<ChatMessage> _messages = [];
+  List<ChatMessage> get messages => _messages;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -36,9 +37,11 @@ class GeminiChatNotifier extends ChangeNotifier {
   ) async {
     try {
       if (pickedImages.isEmpty) {
+        debugPrint("Sending Text Prompt");
         return await _sendTextMessage(prompt);
       }
 
+      debugPrint("Sending Image Prompt");
       await _sendImageMessage(prompt, pickedImages);
     } catch (e) {
       rethrow;
@@ -86,11 +89,9 @@ class GeminiChatNotifier extends ChangeNotifier {
     try {
       _showLoading(true);
 
-      _addMessageToList(
-        user,
-        prompt,
-        medias: platformFilesToChatMediaImage(selectedImages),
-      );
+      final media = platformFilesToChatMediaImage(selectedImages);
+
+      _addMessageToList(user, prompt, media: media);
       notifyListeners();
 
       List<File> images = selectedImages.map((e) => File(e.path!)).toList();
@@ -121,14 +122,14 @@ class GeminiChatNotifier extends ChangeNotifier {
   void _addMessageToList(
     ChatUser user,
     String text, {
-    List<ChatMedia>? medias,
+    List<ChatMedia>? media,
   }) {
     _messages = List.from([
-      Message(
+      ChatMessage(
         user: user,
         createdAt: DateTime.now(),
-        text: text,
-        medias: medias,
+        messageText: text,
+        media: media,
       ),
       ...messages
     ]);
@@ -147,12 +148,12 @@ class GeminiChatNotifier extends ChangeNotifier {
   }
 
   void _addErrorMsg(String message) {
-    _messages.first = _messages.first.copyWith("")..copyWith(message);
+    _messages.first = _messages.first.copyWith(messageText: message);
     notifyListeners();
   }
 
   void _updateBotMessage(String message) {
-    _messages.first = _messages.first.copyWith(message);
+    _messages.first = _messages.first.copyWith(messageText: message);
     notifyListeners();
   }
 }

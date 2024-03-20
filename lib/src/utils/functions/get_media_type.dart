@@ -1,4 +1,4 @@
-import 'package:dash_chat_2/dash_chat_2.dart';
+import '../../../module/src/model/media_model.dart';
 
 MediaType getMediaType(String? extension) {
   switch (extension) {
