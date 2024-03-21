@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:chatgpt_api_demo/module/src/model/media_model.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chatgpt_api_demo/module/src/model/user_model.dart';
 import 'package:chatgpt_api_demo/module/src/model/message_model.dart';
@@ -188,14 +187,21 @@ class ChatView extends StatelessWidget {
               Flexible(
                 child: TextField(
                   controller: inputController,
+                  onSubmitted: (txt) {
+                    if (txt.isNotEmpty && onSend != null) {
+                      onSend!(txt);
+                    }
+                  },
                   decoration: InputDecoration(
                     hintText: hintText,
+                    isDense: true,
+                    border: InputBorder.none,
                     contentPadding: contentPadding,
                   ),
                 ),
               ),
 
-              /// send button
+              /// Send button
               if (sendButtonBuilder == null)
                 IconButton(
                   onPressed: () => onSend!(inputController.text.trim()),

@@ -1,7 +1,7 @@
-import 'dart:typed_data';
+import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:chatgpt_api_demo/module/src/model/media_model.dart';
 import 'package:chatgpt_api_demo/src/utils/functions/file_to_uint8.dart';
-import 'package:flutter/material.dart';
 
 class FullScreenView extends StatelessWidget {
   const FullScreenView(this._media, {super.key});

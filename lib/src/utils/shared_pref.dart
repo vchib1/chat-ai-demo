@@ -1,7 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPref {
-  static Future<bool> saveData<T>(T value, String key) async {
+  /// Save Value
+  /// Eg : Shared.pref<int>(45, "keyName");
+  static Future<bool> save<T>(T value, String key) async {
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
 
@@ -24,7 +27,7 @@ class SharedPref {
     }
   }
 
-  static Future<T?> getData<T>(String key) async {
+  static Future<T?> get<T>(String key) async {
     try {
       SharedPreferences pref = await SharedPreferences.getInstance();
 
@@ -46,6 +49,16 @@ class SharedPref {
       }
 
       return result as T?;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<bool> remove(String key) async {
+    try {
+      SharedPreferences pref = await SharedPreferences.getInstance();
+
+      return await pref.remove(key);
     } catch (e) {
       rethrow;
     }
