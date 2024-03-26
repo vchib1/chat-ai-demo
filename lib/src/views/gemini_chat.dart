@@ -22,7 +22,7 @@ class GeminiChatPage extends HookWidget {
       images.value = pickedFiles.files;
     } catch (e) {
       if (context.mounted) {
-        showSnackbar(context, e.toString());
+        Snackbar(context).show(e.toString());
       }
     }
   }

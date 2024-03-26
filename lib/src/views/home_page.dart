@@ -1,10 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:chatgpt_api_demo/src/utils/extensions/build_context.dart';
 import 'package:chatgpt_api_demo/src/views/bg_remover_page.dart';
 import 'package:chatgpt_api_demo/src/views/chat_page.dart';
 import 'package:chatgpt_api_demo/src/views/dall_e_ai.dart';
 import 'package:chatgpt_api_demo/src/views/gemini_chat.dart';
 import 'package:chatgpt_api_demo/src/views/imagine_ai.dart';
-import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -12,6 +12,12 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          // Navigator.push(context,
+          //     MaterialPageRoute(builder: (context) => const TestPage()));
+        },
+      ),
       appBar: AppBar(),
       body: Center(
         child: Column(

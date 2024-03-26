@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 
-Future<void> showSnackbar(BuildContext context, String message) async {
-  ScaffoldMessenger.of(context)
-    ..clearSnackBars()
-    ..showSnackBar(SnackBar(
-      content: Text(message),
-      duration: const Duration(seconds: 1),
-    ));
+class Snackbar {
+  const Snackbar(this.context, {this.duration = const Duration(seconds: 4)});
+
+  final BuildContext context;
+  final Duration duration;
+
+  Future<void> show(String content) async {
+    final snackBar = SnackBar(content: Text(content), duration: duration);
+
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(snackBar);
+  }
 }

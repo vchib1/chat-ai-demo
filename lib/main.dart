@@ -23,6 +23,7 @@ class MyApp extends StatelessWidget {
       return MaterialApp(
         //locale: DevicePreview.locale(context),
         //builder: DevicePreview.appBuilder,
+        debugShowCheckedModeBanner: false,
         title: 'Chat AI Demo',
         theme: ThemeData(
           useMaterial3: true,
