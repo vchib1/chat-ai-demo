@@ -53,6 +53,8 @@ dependencies:
   shared_preferences: ^2.2.2
   device_preview: ^1.1.0
   flutter_sizer: ^1.0.5
+  flutter_svg: ^2.0.10+1
+  gap: ^3.0.1
 
 dev_dependencies:
   flutter_test:

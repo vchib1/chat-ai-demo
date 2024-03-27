@@ -8,6 +8,30 @@ import 'package:chatgpt_api_demo/src/utils/extensions/build_context.dart';
 const double _radius = 20.0;
 
 class ChatView extends StatelessWidget {
+  const ChatView({
+    super.key,
+    required this.messages,
+    required this.currentUser,
+    required this.inputController,
+    this.scrollPhysics,
+    this.userMsgColor,
+    this.otherMsgColor,
+    this.borderRadius,
+    this.hintText = "Type here",
+    this.contentPadding,
+    this.sendButtonBuilder,
+    this.textFieldDecoration,
+    this.onSend,
+    this.onMediaTap,
+    this.enableSelectMode = false,
+    this.isMsgLoading = false,
+    this.msgTextStyle = const TextStyle(),
+    this.inputPadding = const EdgeInsets.all(8.0),
+    this.msgPadding = const EdgeInsets.all(8.0),
+    this.msgMargin = const EdgeInsets.all(8.0),
+    this.duration = const Duration(milliseconds: 300),
+  });
+
   final List<ChatMessage> messages;
   final ChatUser currentUser;
   final ScrollPhysics? scrollPhysics;
@@ -22,34 +46,12 @@ class ChatView extends StatelessWidget {
   final EdgeInsets inputPadding;
   final EdgeInsets? contentPadding;
   final String hintText;
+  final Duration duration;
   final TextEditingController inputController;
   final Widget Function()? sendButtonBuilder;
   final BoxDecoration? textFieldDecoration;
   final void Function(String)? onSend;
   final void Function(ChatMedia)? onMediaTap;
-
-  const ChatView({
-    super.key,
-    required this.messages,
-    required this.currentUser,
-    required this.inputController,
-    this.scrollPhysics,
-    this.userMsgColor,
-    this.otherMsgColor,
-    this.enableSelectMode = false,
-    this.msgPadding = const EdgeInsets.all(8.0),
-    this.msgMargin = const EdgeInsets.all(8.0),
-    this.msgTextStyle = const TextStyle(),
-    this.borderRadius,
-    this.hintText = "Type here",
-    this.contentPadding,
-    this.sendButtonBuilder,
-    this.textFieldDecoration,
-    this.onSend,
-    this.onMediaTap,
-    this.isMsgLoading = false,
-    this.inputPadding = const EdgeInsets.all(8.0),
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +82,8 @@ class ChatView extends StatelessWidget {
                             : MainAxisAlignment.start,
                         children: [
                           Flexible(
-                            child: Container(
+                            child: AnimatedContainer(
+                              duration: duration,
                               padding: msgPadding,
                               margin: msgMargin,
                               decoration: BoxDecoration(

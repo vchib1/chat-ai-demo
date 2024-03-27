@@ -5,7 +5,7 @@ import 'package:chatgpt_api_demo/src/utils/error/http_status_codes.dart';
 
 class ImageGenerationAPI {
   final String _apiKey = "vk-8DcOP2zMFES34frqq39abwFvBXIl21I6FQoRPpo7lFK2FDx";
-  final String _baseURL = "https://api.vyro.ai/v1/imagine/api/generations";
+  final String _baseURL = "https://api.vyro.ai/v1/imagine/api";
 
   Future<Uint8List> sendImageProcessingRequest({
     required String prompt,
@@ -22,7 +22,7 @@ class ImageGenerationAPI {
 
       final request = http.MultipartRequest(
         "POST",
-        Uri.parse(_baseURL),
+        Uri.parse("$_baseURL/generations"),
       )
         ..headers.addAll(headers)
         ..fields.addAll(body);
@@ -42,13 +42,13 @@ class ImageGenerationAPI {
 
   Future<Uint8List> backgroundRemover(File imageFile) async {
     try {
+      const requestType = "POST";
+
       final headers = <String, String>{"Authorization": "Bearer $_apiKey"};
       final file = await http.MultipartFile.fromPath('image', imageFile.path);
 
       final request = http.MultipartRequest(
-        "POST",
-        Uri.parse("https://api.vyro.ai/v1/imagine/api/background/remover"),
-      )
+          requestType, Uri.parse("$_baseURL/background/remover"))
         ..headers.addAll(headers)
         ..files.add(file);
 
