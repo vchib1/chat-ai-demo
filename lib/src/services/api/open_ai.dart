@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 final openAIProvider = Provider<OpenAI>((ref) => OpenAI());
 
 class OpenAI {
-  final _apiKey = "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";
+  final _apiKey = "";
 
   final _baseURL = "https://api.openai.com/v1";
 
