@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:chatgpt_api_demo/src/utils/functions/get_mime_type.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
-const _apiKey = "AIzaSyC1PD1LEXaKA5S0DMG5D-WmWqrkoaL3twE";
+const _apiKey = "";
 
 class GeminiAPI {
   ChatSession? _chatModel;
