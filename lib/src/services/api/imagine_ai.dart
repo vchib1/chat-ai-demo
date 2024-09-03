@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:chatgpt_api_demo/src/utils/error/http_status_codes.dart';
 
 class ImageGenerationAPI {
-  final String _apiKey = "vk-8DcOP2zMFES34frqq39abwFvBXIl21I6FQoRPpo7lFK2FDx";
+  final String _apiKey = "";
   final String _baseURL = "https://api.vyro.ai/v1/imagine/api";
 
   Future<Uint8List> sendImageProcessingRequest({
